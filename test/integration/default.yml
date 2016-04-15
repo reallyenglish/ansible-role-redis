@@ -1,0 +1,6 @@
+- hosts: all
+  pre_tasks:
+  roles:
+    - ansible-role-redis
+  vars:
+    redis_config_tcp_backlog: 512

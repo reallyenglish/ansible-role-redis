@@ -1,0 +1,6 @@
+---
+
+- name: Ensure redis is installed
+  pkgng:
+    name: redis
+    state: present
