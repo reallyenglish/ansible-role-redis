@@ -1,5 +1,6 @@
 require 'infrataster/rspec'
 require 'infrataster-plugin-redis'
+require 'redis'
 
 ENV['VAGRANT_CWD'] = File.dirname(__FILE__)
 ENV['LANG'] = 'C'
