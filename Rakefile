@@ -29,10 +29,18 @@ namespace :integration do
     end
 
     desc 'cleanup sentinel'
-    task :cleanup do
+    task :cleanup => [ :cleanup_vagrant, :cleanup_role ] do
+    end
+    
+    desc 'destroy vagrant nodes'
+    task :cleanup_vagrant do
       Dir.chdir("#{base_dir}/sentinel") do
         sh 'vagrant destroy -f'
       end
+    end
+
+    desc "rm #{base_dir}/sentinel/roles/*"
+    task :cleanup_role do
       sh "rm -rf #{base_dir}/sentinel/roles/*"
     end
   end
