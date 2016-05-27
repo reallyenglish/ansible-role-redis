@@ -10,6 +10,11 @@ databases {{ redis_config_databases }}
 {% for v in redis_config_save -%}
 save {{ v }}
 {% endfor -%}
+
+{% if redis_config_slaveof %}
+slaveof {{ redis_config_slaveof }}
+{% endif %}
+
 stop-writes-on-bgsave-error {{ redis_config_stop_writes_on_bgsave_error }}
 rdbcompression {{ redis_config_rdbcompression }}
 rdbchecksum {{ redis_config_rdbchecksum }}
