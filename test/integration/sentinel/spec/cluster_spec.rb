@@ -1,6 +1,11 @@
 require 'spec_helper'
 
-sleep 10
+# if the build is in jenkins, sleep longer
+if ENV['JENKINS_HOME']
+  sleep 60
+else
+  sleep 10
+end
 
 describe server(:master) do
   describe redis("ping") do
