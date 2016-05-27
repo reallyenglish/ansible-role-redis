@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # if the build is in jenkins, sleep longer
 if ENV['JENKINS_HOME']
-  sleep 60
+  sleep 120
 else
   sleep 10
 end
