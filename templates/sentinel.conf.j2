@@ -1,9 +1,10 @@
 port {{ redis_sentinel_port }}
 dir {{ redis_sentinel_dir }}
 sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_master_ip }} {{ redis_sentinel_master_port }} {{ redis_sentinel_quorum }}
+sentinel parallel-syncs {{ redis_sentinel_master_name }} 1
 
 # 30 sec
 sentinel down-after-milliseconds {{ redis_sentinel_master_name }} 30000
-sentinel parallel-syncs {{ redis_sentinel_master_name }} 1
+sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}
 # 3 min
 sentinel failover-timeout {{ redis_sentinel_master_name }} 180000
