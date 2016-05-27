@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'rake', '~> 11.1.2'
 gem 'rspec', '~> 3.4.0'
 gem "test-kitchen", '~> 1.6.0'
 gem "kitchen-vagrant", '~> 0.19.0'
