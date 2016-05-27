@@ -35,3 +35,6 @@
     name: redis
     enabled: yes
     state: started
+
+- include: sentinel.yml
+  when: redis_sentinel_enable

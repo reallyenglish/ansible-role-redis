@@ -6,3 +6,9 @@
     name: redis
     state: restarted
     enabled: yes
+
+- name: Restart sentinel
+  service:
+    name: sentinel
+    state: restarted
+    enabled: yes

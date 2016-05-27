@@ -1,0 +1,13 @@
+---
+
+- name: Create sentinel.conf
+  template:
+    dest: "{{ redis_conf_dir }}/sentinel.conf"
+    src: sentinel.conf.j2
+  notify: Restart sentinel
+
+- name: Start sentinel
+  service:
+    name: sentinel
+    enabled: yes
+    state: started

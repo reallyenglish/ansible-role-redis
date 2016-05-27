@@ -55,3 +55,11 @@ redis_config_client_output_buffer_limit:
   - pubsub 32mb 8mb 60
 redis_config_hz: 10
 redis_config_aof_rewrite_incremental_fsync: "yes"
+
+redis_sentinel_enable: false
+redis_sentinel_port: 26379
+redis_sentinel_dir: /tmp
+redis_sentinel_master_name: master
+redis_sentinel_master_ip: ""
+redis_sentinel_master_port: 6379
+redis_sentinel_quorum: 3
