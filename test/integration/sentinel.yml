@@ -1,0 +1,7 @@
+- hosts: localhost
+  roles:
+    - ansible-role-redis
+  vars:
+    redis_sentinel_enable: true
+    redis_sentinel_master_ip: "{{ ansible_default_ipv4.address }}"
+
