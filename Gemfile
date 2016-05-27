@@ -9,4 +9,4 @@ gem 'kitchen-verifier-shell', '~> 0.2.0'
 gem 'kitchen-verifier-serverspec', '~> 0.3.0'
 gem 'infrataster', '~> 0.3.2'
 gem 'serverspec', '~> 2.31.0'
-
+gem 'infrataster-plugin-redis', '~> 0.1.1'
