@@ -27,3 +27,11 @@ suites:
     verifier:
       name: shell
       command: rspec -c -f d -I spec/serverspec spec/serverspec/default_spec.rb
+
+  - name: sentinel
+    provisioner:
+      name: ansible_playbook
+      playbook: test/integration/sentinel.yml
+    verifier:
+      name: shell
+      command: rspec -c -f d -I spec/serverspec spec/serverspec/sentinel_spec.rb
