@@ -20,6 +20,12 @@ node ('virtualbox') {
       sh 'bundle exec kitchen destroy'
     }
 
+    stage 'integration'
+    try {
+      sh 'bundle exec rake integration:sentinel:test'
+    } finally {
+      sh 'bundle exec rake integration:sentinel:cleanup'
+    }
     stage 'Notify'
     step([$class: 'GitHubCommitNotifier', resultOnFailure: 'FAILURE'])
   }
