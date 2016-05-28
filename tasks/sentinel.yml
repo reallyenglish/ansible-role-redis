@@ -2,9 +2,22 @@
 
 - name: Create sentinel.conf
   template:
-    dest: "{{ redis_conf_dir }}/sentinel.conf"
+    dest: "{{ redis_sentinel_conf_file }}"
     src: sentinel.conf.j2
+    owner: "{{ redis_user }}"
+    owner: "{{ redis_group }}"
   notify: Restart sentinel
+
+- name: Create rc.conf.d for sentinel
+  lineinfile:
+    dest: /etc/rc.conf.d/sentinel
+    regexp: "^sentinel_config="
+    line: "sentinel_config=\"{{ redis_sentinel_conf_file }}\""
+    create: yes
+    state: present
+  notify: Restart redis
+  when:
+    - "{{ ansible_os_family == 'FreeBSD' }}"
 
 - name: Start sentinel
   service:

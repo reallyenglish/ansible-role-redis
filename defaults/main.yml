@@ -3,6 +3,7 @@
 redis_user: redis
 redis_group: redis
 redis_conf_dir: "{{ __redis_conf_dir }}"
+redis_conf_file: "{{ redis_conf_dir }}/redis.conf"
 
 redis_config_daemonize: "yes"
 redis_config_pidfile: "{{ __redis_config_pidfile }}"
@@ -58,6 +59,7 @@ redis_config_aof_rewrite_incremental_fsync: "yes"
 
 redis_config_slaveof:
 
+redis_sentinel_conf_file: "{{ redis_conf_dir }}/sentinel.conf"
 redis_sentinel_enable: false
 redis_sentinel_port: 26379
 redis_sentinel_dir: /tmp

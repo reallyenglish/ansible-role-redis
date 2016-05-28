@@ -18,7 +18,7 @@
 - name: Create redis.conf
   template:
     src: redis.conf.j2
-    dest: "{{ redis_conf_dir }}/redis.conf"
+    dest: "{{ redis_conf_file }}"
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
 

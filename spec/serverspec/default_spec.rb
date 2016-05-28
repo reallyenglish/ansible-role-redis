@@ -23,6 +23,14 @@ describe package(redis_package_name) do
   it { should be_installed }
 end 
 
+case os[:family]
+when 'freebsd'
+  describe file('/etc/rc.conf.d/redis') do
+    it { should be_file }
+    its(:content) { should match Regexp.escape('redis_config="/usr/local/etc/redis/redis.conf"') }
+  end
+end
+
 describe service(redis_service_name) do
   it { should be_running }
   it { should be_enabled }

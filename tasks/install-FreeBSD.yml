@@ -4,3 +4,13 @@
   pkgng:
     name: redis
     state: present
+
+- name: Create rc.conf.d for redis
+  lineinfile:
+    dest: /etc/rc.conf.d/redis
+    regexp: "^redis_config="
+    line: "redis_config=\"{{ redis_conf_file }}\""
+    create: yes
+    state: present
+  notify:
+    - Restart redis
