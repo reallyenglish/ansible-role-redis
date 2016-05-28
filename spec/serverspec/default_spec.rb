@@ -16,7 +16,7 @@ case os[:family]
 when 'freebsd'
   redis_package_name = 'redis'
   redis_service_name = 'redis'
-  redis_config       = '/usr/local/etc/redis.conf'
+  redis_config       = '/usr/local/etc/redis/redis.conf'
 end
 
 describe package(redis_package_name) do
