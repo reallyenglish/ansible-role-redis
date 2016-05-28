@@ -16,12 +16,20 @@ case os[:family]
 when 'freebsd'
   redis_package_name = 'redis'
   redis_service_name = 'redis'
-  redis_config       = '/usr/local/etc/redis.conf'
+  redis_config       = '/usr/local/etc/redis/redis.conf'
 end
 
 describe package(redis_package_name) do
   it { should be_installed }
 end 
+
+case os[:family]
+when 'freebsd'
+  describe file('/etc/rc.conf.d/redis') do
+    it { should be_file }
+    its(:content) { should match Regexp.escape('redis_config="/usr/local/etc/redis/redis.conf"') }
+  end
+end
 
 describe service(redis_service_name) do
   it { should be_running }
