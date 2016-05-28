@@ -5,7 +5,7 @@
     dest: "{{ redis_sentinel_conf_file }}"
     src: sentinel.conf.j2
     owner: "{{ redis_user }}"
-    owner: "{{ redis_group }}"
+    group: "{{ redis_group }}"
   notify: Restart sentinel
 
 - name: Create rc.conf.d for sentinel
