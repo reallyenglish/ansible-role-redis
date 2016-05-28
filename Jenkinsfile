@@ -20,6 +20,14 @@ node ('virtualbox') {
       sh 'bundle exec kitchen destroy'
     }
 
+    stage 'integration'
+    try {
+      // use native rake instead of bundle exec rake
+      // https://github.com/docker-library/ruby/issues/73
+      sh 'rake integration:sentinel:test'
+    } finally {
+      sh 'rake integration:sentinel:cleanup'
+    }
     stage 'Notify'
     step([$class: 'GitHubCommitNotifier', resultOnFailure: 'FAILURE'])
   }

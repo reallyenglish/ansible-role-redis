@@ -1,0 +1,100 @@
+require 'socket'
+# @return [String] public IP address of workstation used for egress traffic
+def local_ip
+  @local_ip ||= begin
+    # turn off reverse DNS resolution temporarily
+    orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true
+
+    # open UDP socket so that it never send anything over the network
+    UDPSocket.open do |s|
+      s.connect '8.8.8.8', 1 # any global IP address works here
+      s.addr.last
+    end
+  ensure
+    Socket.do_not_reverse_lookup = orig
+  end
+end
+# @return [Integer] default listening port
+def local_port ; 8080 ; end
+# @return [String] the proxy URL
+def http_proxy_url ; "http://#{local_ip}:#{local_port}" ; end
+# @return [TrueClass,FalseClass] whether or not the port is listening
+def proxy_running?
+  socket = TCPSocket.new(local_ip, local_port)
+  true
+rescue SocketError, Errno::ECONNREFUSED,
+  Errno::EHOSTUNREACH, Errno::ENETUNREACH, IOError
+  false
+rescue Errno::EPERM, Errno::ETIMEDOUT
+  false
+ensure
+  socket && socket.close
+end
+http_proxy = proxy_running? ? http_proxy_url : ''
+
+# Vagrantfile
+Vagrant.configure("2") do |config|
+  config.ssh.shell = "/bin/sh"
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 512
+    v.cpus = 1
+  end
+  config.vm.box = "trombik/ansible-freebsd-10.3-amd64"
+
+  ip = {
+    :master => '192.168.90.100',
+    :slave1 => '192.168.90.201',
+    :slave2 => '192.168.90.202',
+  }
+  config.vm.define "master" do |c|
+    c.vm.network "private_network", ip: ip[:master]
+    c.vm.hostname = "master.virtualbox.reallyenglish.com"
+    c.vm.provision :ansible do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.limit = ip[:master]
+      ansible.verbose = "v"
+      ansible.extra_vars = {
+        ansible_python_interpreter: '/usr/local/bin/python',
+        http_proxy: http_proxy,
+        https_proxy: http_proxy,
+        no_proxy: 'localhost,127.0.0.1,.example.com'
+      }
+      ansible.inventory_path = 'inventories/staging'
+    end
+  end
+
+  config.vm.define "slave1" do |c|
+    c.vm.network "private_network", ip: ip[:slave1]
+    c.vm.hostname = "slave1.virtualbox.reallyenglish.com"
+    c.vm.provision :ansible do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.limit = ip[:slave1]
+      ansible.verbose = "v"
+      ansible.extra_vars = {
+        ansible_python_interpreter: '/usr/local/bin/python',
+        http_proxy: http_proxy,
+        https_proxy: http_proxy,
+        no_proxy: 'localhost,127.0.0.1,.example.com'
+      }
+      ansible.inventory_path = 'inventories/staging'
+    end
+  end
+
+  config.vm.define "slave2" do |c|
+    c.vm.network "private_network", ip: ip[:slave2]
+    c.vm.hostname = "slave2.virtualbox.reallyenglish.com"
+    c.vm.provision :ansible do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.limit = ip[:slave2]
+      ansible.verbose = "v"
+      ansible.extra_vars = {
+        ansible_python_interpreter: '/usr/local/bin/python',
+        http_proxy: http_proxy,
+        https_proxy: http_proxy,
+        no_proxy: 'localhost,127.0.0.1,.example.com'
+      }
+      ansible.inventory_path = 'inventories/staging'
+    end
+  end
+end
+# vim: ft=ruby
