@@ -1,52 +1,16 @@
 ---
-# tasks file for ansible-role-redis
 
 - include_vars: "{{ ansible_os_family }}.yml"
 
 - include: install-FreeBSD.yml
   when: ansible_os_family == 'FreeBSD'
 
-- name: Create config dir for redis
-  # when failover takes place, the config file is dinamycally overwritten by redis user
-  file:
-    path: "{{ redis_conf_dir }}"
-    mode: 0755
-    owner: "{{ redis_user }}"
-    group: "{{ redis_group }}"
-    state: directory
-
-- name: Create redis.conf
-  template:
-    src: redis.conf.j2
-    dest: "{{ redis_conf_file }}"
-    owner: "{{ redis_user }}"
-    group: "{{ redis_group }}"
-
-  notify: Restart redis
-
-- name: Ensure dir exists
-  file:
-    path: "{{ redis_config_dir }}"
-    owner: "{{ redis_user }}"
-    group: "{{ redis_group }}"
-    mode: 0755
-    state: directory
-  notify: Restart redis
-
-- name: Ensure log dir exists
-  file:
-    path: "{{ redis_config_logfile | dirname }}"
-    owner: "{{ redis_user }}"
-    group: "{{ redis_group }}"
-    mode: 0755
-    state: directory
-  notify: Restart redis
-
-- name: Start redis
-  service:
-    name: redis
-    enabled: yes
-    state: started
-
 - include: sentinel.yml
+  # must be included before redis starts.
   when: redis_sentinel_enable
+
+- name: Flush the handlers so Sentinel is up and running before the redis servers
+  meta: flush_handlers
+
+- include: redis.yml
+  when: redis_enable
