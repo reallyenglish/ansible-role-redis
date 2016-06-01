@@ -19,7 +19,8 @@
     line: "redis_config=\"{{ redis_conf_file }}\""
     create: yes
     state: present
-    notify: Restart redis
+  when: ansible_os_family == 'FreeBSD'
+  notify: Restart redis
 
 - name: redis_conf_file_ansible exist?
   # see if this is the first ansible-play.
