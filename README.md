@@ -15,7 +15,11 @@ Role Variables
 |----------|-------------|---------|
 | redis\_user | redis user name | redis |
 | redis\_group | redis group name | redis |
+| redis\_port | default port of redis | 6379 |
 | redis\_conf\_dir | basedir of redis.conf | "{{ \_\_redis\_conf\_dir }}" |
+| redis\_conf\_file | config file for redis, which is updated by redis user | "{{ redis\_conf\_dir }}/redis.conf" |
+| redis\_conf\_file\_ansible | static config file for redis | "{{ redis\_conf\_file }}.ansible"
+| redis\_enable | Enable redis. if true, tasks/redis.yml is invoked | yes |
 | redis\_config\_daemonize | daemonize | "yes" |
 | redis\_config\_pidfile | pidfile | "{{ \_\_redis\_config\_pidfile }}" |
 | redis\_config\_port | port | 6379 |
@@ -61,6 +65,17 @@ Role Variables
 | redis\_config\_client\_output\_buffer\_limit | client-output-buffer-limit | [ "normal 0 0 0", "slave 256mb 64mb 60", "pubsub 32mb 8mb 60" ]
 | redis\_config\_hz | hz | 10 |
 | redis\_config\_aof\_rewrite\_incremental\_fsync | aof-rewrite-incremental-fsync | "yes" |
+
+| redis\_sentinel\_group | a list of sentinel nodes| [] |
+| redis\_sentinel\_conf\_file | | {{ redis\_conf\_dir }}/sentinel.conf |
+| redis\_sentinel\_conf\_file\_ansible | | {{ redis\_sentinel\_conf\_file }}.ansible |
+| redis\_sentinel\_enable | enable sentinel on node. invoke tasks/sentinel.yml if true | false |
+| redis\_sentinel\_port | default port of sentinel | 26379 |
+| redis\_sentinel\_dir | dir for sentinel to chdir | /tmp |
+| redis\_sentinel\_master\_name | master\_name | "" |
+| redis\_sentinel\_master\_port | the port to monitor redis | 6379 |
+| redis\_sentinel\_quorum | quorum value | 2 |
+| redis\_sentinel\_parallel\_syncs | parallel-syncs | 1 |
 
 Dependencies
 ------------
