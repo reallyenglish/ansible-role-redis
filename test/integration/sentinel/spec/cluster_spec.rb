@@ -76,6 +76,27 @@ describe server(:master) do
   end
 end
 
+[ server(:slave1), server(:slave2) ].each do |s|
+  describe s do
+    let(:redis) {
+      Redis.new(
+        :host => s.server.address,
+        :port => 26379
+      )
+    }
+    let(:sentinel_masters_result) {
+      redis.sentinel('master', master_name)
+    }
+    it 'should report the correct master' do
+      expect(sentinel_masters_result['ip']).to eq('192.168.90.100')
+    end
+
+    it 'should report num-slaves is two' do
+      expect(sentinel_masters_result['num-slaves'].to_i).to eq(2)
+    end
+  end
+end
+
 context 'when client has sentinel support' do
   describe 'cluster' do
     let(:url) {
