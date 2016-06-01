@@ -8,6 +8,7 @@ else
 end
 
 master_name = 'testdb'
+slaves = [ server(:slave1), server(:slave2) ]
 
 describe server(:master) do
   describe redis("ping") do
@@ -76,7 +77,7 @@ describe server(:master) do
   end
 end
 
-[ server(:slave1), server(:slave2) ].each do |s|
+slaves.each do |s|
   describe s do
     let(:redis) {
       Redis.new(
@@ -135,6 +136,155 @@ context 'when client has sentinel support' do
         r = redis_slave.get('foo')
         expect(r).to eq('bar')
       end
+    end
+  end
+end
+
+context 'when master redis is down' do
+  describe server(:master) do
+    let(:redis) {
+      Redis.new(
+        :host => server(:master).server.address,
+        :port => 26379
+      )
+    }
+    let(:sentinel_get_master_result) {
+      redis.sentinel('get-master-addr-by-name', master_name)
+    }
+    it 'should stop redis server' do
+      result = current_server.ssh_exec 'sudo service redis stop >/dev/null 2>&1 && echo -n OK'
+      expect(result).to eq('OK')
+      current_server.ssh_exec 'sleep 10'
+    end
+    it 'should report current master is not server(:master)' do
+      expect(sentinel_get_master_result).not_to eq([ server(:master).server.address, '6379' ])
+    end
+  end
+
+  slaves.each do |s|
+    describe s do
+      let(:redis) {
+        Redis.new(
+          :host => s.server.address,
+          :port => 26379
+        )
+      }
+      let(:sentinel_masters_result) {
+        redis.sentinel('master', master_name)
+      }
+      it 'should report the previous master is not a master' do
+        expect(sentinel_masters_result['ip']).not_to eq(server(:master).server.address)
+      end
+    end
+  end
+  describe 'cluster' do
+    let(:url) {
+      "redis://#{ master_name }"
+    }
+    let(:sentinels) {
+      [
+        { :host => server(:master).server.address, :port => 26379 },
+        { :host => server(:slave1).server.address, :port => 26379 },
+        { :host => server(:slave2).server.address, :port => 26379 },
+      ]
+    }
+    let(:redis_master) {
+      Redis.new(
+        :url => url,
+        :sentinels => sentinels,
+        :role => :master
+      )
+    }
+    let(:redis_slave) {
+      Redis.new(
+        :url => url,
+        :sentinels => sentinels,
+        :role => :master
+      )
+    }
+    describe 'master' do
+      it 'should accept set request' do
+        r = redis_master.set('foo', 'buz')
+        expect(r).to eq('OK')
+      end
+    end
+
+    describe 'slaves' do
+      it 'should return buz' do
+        r = redis_slave.get('foo')
+        expect(r).to eq('buz')
+      end
+    end
+  end
+end
+
+context 'when the original master is back' do
+  describe server(:master) do
+    before do
+      current_server.ssh_exec 'sudo service redis start'
+      current_server.ssh_exec 'sleep 10'
+    end
+    let(:redis) {
+      Redis.new(
+        :host => server(:master).server.address,
+        :port => 6379
+      )
+    }
+    let(:sentinel) {
+      Redis.new(
+        :host => server(:master).server.address,
+        :port => 26379
+      )
+    }
+    let(:sentinel_get_master_result) {
+      sentinel.sentinel('get-master-addr-by-name', master_name)
+    }
+    let(:redis_info_result) {
+      redis.info
+    }
+
+    it 'should report it is a slave' do
+      expect(redis_info_result['role']).to eq('slave')
+      expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
+    end
+
+    it 'should return buz that has been set while it was down' do
+      r = redis.get('foo')
+      expect(r).to eq('buz')
+    end
+  end
+
+  slaves.each do |s|
+    describe s do
+      let(:sentinel) {
+        Redis.new(
+          :host => current_server.address,
+          :port => 26379
+        )
+      }
+      before :each do
+        current_server.ssh_exec "redis-cli debug sleep 10"
+      end
+      it 'should report it is a slave' do
+        r = sentinel.sentinel('get-master-addr-by-name', master_name)
+        expect(r).not_to eq([ s.server.address, '6379'])
+      end
+    end
+  end
+
+  describe server(:master) do
+    let(:redis) {
+      Redis.new(
+        :host => server(:master).server.address,
+        :port => 6379
+      )
+    }
+    let(:redis_info_result) {
+      redis.info
+    }
+    it 'should report it is the master' do
+      expect(redis_info_result['role']).to eq('master')
+      expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
     end
   end
 end
