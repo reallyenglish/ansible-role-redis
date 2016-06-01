@@ -1,11 +1,65 @@
 ---
 
-- name: Create sentinel.conf
-  template:
-    dest: "{{ redis_sentinel_conf_file }}"
-    src: sentinel.conf.j2
+- name: Create conf directory
+  file:
+    path: "{{ redis_conf_dir }}"
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
+    state: directory
+
+- name: Ensure sentinel.conf exists
+  file:
+    path: "{{ redis_sentinel_conf_file }}"
+    state: touch
+  changed_when: false
+
+- name: Ensure sentnel.conf is writable by redis_user
+  # as sentinel.conf is modified by redis, it must be owned by the user
+  file:
+    path: "{{ redis_sentinel_conf_file }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    mode: 0644
+
+- name: See if redis_sentinel_conf_file_ansible exists
+  # if the result is true, it means it is the first ansible-play
+  stat:
+    path: "{{ redis_sentinel_conf_file_ansible }}"
+  register: redis_sentinel_conf_file_ansible_stat_result
+
+- name: Inject monitor lines to sentinel.conf
+  # add "sentinel monitor" when sentinel.conf.ansible has not been created
+  # the first node in redis_sentinel_group becomes the master.
+  #
+  # TODO
+  # * configure failover-timeout
+  # * configure down-after-milliseconds
+  # * configure parallel-syncs
+  # * understand why include must be after a variable
+  lineinfile:
+    regexp: "^sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }} {{ redis_sentinel_master_port }} {{ redis_sentinel_quorum }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: include redis_sentinel_conf_file_ansible in sentinel.conf
+  # make sure sentinel.conf.ansible is included
+  lineinfile:
+    dest: "{{ redis_sentinel_conf_file }}"
+    regexp: "^include "
+    line: "include {{ redis_sentinel_conf_file_ansible }}"
+    insertafter: EOF
+    state: present
+  changed_when: false
+  notify: Restart sentinel
+
+- name: Create sentinel.conf.ansible
+  # this file is static one and all static configuration should go in to it.
+  template:
+    dest: "{{ redis_sentinel_conf_file_ansible }}"
+    src: sentinel.conf.j2
   notify: Restart sentinel
 
 - name: Create rc.conf.d for sentinel
@@ -15,7 +69,7 @@
     line: "sentinel_config=\"{{ redis_sentinel_conf_file }}\""
     create: yes
     state: present
-  notify: Restart redis
+  notify: Restart sentinel
   when:
     - "{{ ansible_os_family == 'FreeBSD' }}"
 
