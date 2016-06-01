@@ -1,1 +1,0 @@
-redis_config_slaveof: "{{ redis_sentinel_master_ip }} 6379"
