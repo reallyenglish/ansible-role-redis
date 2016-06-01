@@ -263,6 +263,7 @@ context 'when the original master is back' do
         )
       }
       before :each do
+        # redis gem does not support debug
         current_server.ssh_exec "redis-cli debug sleep 10"
       end
       it 'should report it is a slave' do
