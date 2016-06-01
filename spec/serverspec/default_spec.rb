@@ -19,6 +19,8 @@ when 'freebsd'
   redis_config       = '/usr/local/etc/redis/redis.conf'
 end
 
+redis_config_ansible = "#{ redis_config }.ansible"
+
 describe package(redis_package_name) do
   it { should be_installed }
 end 
@@ -29,11 +31,6 @@ when 'freebsd'
     it { should be_file }
     its(:content) { should match Regexp.escape('redis_config="/usr/local/etc/redis/redis.conf"') }
   end
-end
-
-describe service(redis_service_name) do
-  it { should be_running }
-  it { should be_enabled }
 end
 
 describe file(redis_log_dir) do
@@ -49,16 +46,30 @@ describe file(redis_dir) do
   it { should be_owned_by redis_user }
   it { should be_grouped_into redis_group }
 end
-describe port(redis_port) do
-  it { should be_listening }
-end
 
 describe file(redis_config) do
+  it { should be_file }
+  it { should be_owned_by redis_user }
+  it { should be_grouped_into redis_group }
+  its(:content) { should match /^include #{ Regexp.escape(redis_config_ansible) }/ }
+  its(:content) { should_not match /^slaveof / }
+end
+
+describe file(redis_config_ansible) do
   it { should be_file }
   its(:content) { should match Regexp.escape("pidfile #{redis_pidfile}") }
   its(:content) { should match Regexp.escape("logfile #{redis_logfile}") }
   its(:content) { should match Regexp.escape("dir #{redis_dir}") }
   its(:content) { should match /tcp-backlog 512/ }
+end
+
+describe service(redis_service_name) do
+  it { should be_running }
+  it { should be_enabled }
+end
+
+describe port(redis_port) do
+  it { should be_listening }
 end
 
 describe command ('redis-cli ping') do
