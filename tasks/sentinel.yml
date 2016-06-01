@@ -33,7 +33,6 @@
   #
   # TODO
   # * configure failover-timeout
-  # * configure down-after-milliseconds
   # * configure parallel-syncs
   # * understand why include must be after a variable
   lineinfile:
