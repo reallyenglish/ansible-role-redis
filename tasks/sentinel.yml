@@ -73,6 +73,14 @@
   when:
     - "{{ ansible_os_family == 'FreeBSD' }}"
 
+- name: Create logdir
+  file:
+    path: "{{ redis_sentinel_logdir }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    mode: 0755
+    state: directory
+
 - name: Start sentinel
   service:
     name: sentinel

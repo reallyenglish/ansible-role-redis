@@ -16,6 +16,8 @@ sentinel_port = 26379
 sentinel_conf = '/etc/redis/sentinel.conf'
 sentinel_user = 'redis'
 sentinel_group = 'redis'
+sentinel_log_dir = '/var/log/redis'
+sentinel_log_file = "#{sentinel_log_dir}/sentinel.log"
 
 case os[:family]
 when 'freebsd'
@@ -48,10 +50,24 @@ describe file(sentinel_conf_ansible) do
   it { should be_file }
   its(:content) { should match /port 26379/ }
   its(:content) { should match /dir \/tmp/ }
+  its(:content) { should match /logfile #{ Regexp.escape(sentinel_log_file) }/ }
   its(:content) { should match /sentinel parallel-syncs my_database/ }
-  its(:content) { should match /sentinel down-after-milliseconds my_database 30000/ }
+  its(:content) { should match /sentinel down-after-milliseconds my_database 5000/ }
   its(:content) { should match /sentinel parallel-syncs my_database 1/ }
   its(:content) { should match /sentinel failover-timeout my_database 180000/ }
+end
+
+describe file(sentinel_log_dir) do
+  it { should be_directory }
+  it { should be_mode 755 }
+  it { should be_owned_by sentinel_user }
+  it { should be_grouped_into sentinel_group }
+end
+
+describe file(sentinel_log_file) do
+  it { should be_file }
+  it { should be_owned_by sentinel_user }
+  it { should be_grouped_into sentinel_group }
 end
 
 describe service(sentinel_service_name) do

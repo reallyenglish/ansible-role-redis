@@ -77,6 +77,8 @@ Role Variables
 | redis\_sentinel\_quorum | quorum value | 2 |
 | redis\_sentinel\_parallel\_syncs | parallel-syncs | 1 |
 | redis\_sentinel\_down\_after\_milliseconds | down-after-milliseconds | 5000 (or 5 sec) |
+| redis\_sentinel\_logdir | log dir for sentinel | \_\_redis\_sentinel\_logdir |
+| redis\_sentinel\_logfile | log file for sentinel | "{{ redis\_sentinel\_logdir }}/sentinel.log" |
 
 Dependencies
 ------------
