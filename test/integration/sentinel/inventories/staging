@@ -1,3 +1,5 @@
+# this master becomes a master when initially configured. after that it is not
+# guaranteed. ask sentinel for current master node.
 [master]
 192.168.90.100
 
