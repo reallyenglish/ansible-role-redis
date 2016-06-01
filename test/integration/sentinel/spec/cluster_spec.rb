@@ -7,6 +7,8 @@ else
   sleep 10
 end
 
+master_name = 'testdb'
+
 describe server(:master) do
   describe redis("ping") do
     it 'should ping server' do
@@ -39,13 +41,13 @@ describe server(:master) do
     )
   }
   let(:sentinel_master_result) {
-    redis.sentinel('master', 'test_master')
+    redis.sentinel('master', master_name)
   }
   let(:sentinel_slaves_result) {
-    redis.sentinel('slaves', 'test_master')
+    redis.sentinel('slaves', master_name)
   }
   let(:sentinel_get_master_result) {
-    redis.sentinel('get-master-addr-by-name', 'test_master')
+    redis.sentinel('get-master-addr-by-name', master_name)
   }
 
   it 'should be connected to 2 sentinels' do
@@ -72,11 +74,46 @@ describe server(:master) do
   it 'should report the correct master at the moment' do
     expect(sentinel_get_master_result).to eq(['192.168.90.100', '6379'])
   end
+end
 
-  it 'should failover' do
-    result = redis.sentinel('failover', 'test_master')
-    expect(result).to eq('OK')
-    sleep 10
-    expect(redis.sentinel('get-master-addr-by-name', 'test_master')[0]).not_to eq('192.168.90.100')
+context 'when client has sentinel support' do
+  describe 'cluster' do
+    let(:url) {
+      "redis://#{ master_name }"
+    }
+    let(:sentinels) {
+      [
+        { :host => server(:master).server.address, :port => 26379 },
+        { :host => server(:slave1).server.address, :port => 26379 },
+        { :host => server(:slave2).server.address, :port => 26379 },
+      ]
+    }
+    let(:redis_master) {
+      Redis.new(
+        :url => url,
+        :sentinels => sentinels,
+        :role => :master
+      )
+    }
+    let(:redis_slave) {
+      Redis.new(
+        :url => url,
+        :sentinels => sentinels,
+        :role => :master
+      )
+    }
+    describe 'master' do
+      it 'should accept set request' do
+        r = redis_master.set('foo', 'bar')
+        expect(r).to eq('OK')
+      end
+    end
+
+    describe 'slaves' do
+      it 'should return bar' do
+        r = redis_slave.get('foo')
+        expect(r).to eq('bar')
+      end
+    end
   end
 end
