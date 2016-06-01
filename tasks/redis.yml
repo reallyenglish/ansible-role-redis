@@ -12,6 +12,15 @@
     group: "{{ redis_group }}"
     state: directory
 
+- name: Create rc.conf.d for redis
+  lineinfile:
+    dest: /etc/rc.conf.d/redis
+    regexp: "^redis_config="
+    line: "redis_config=\"{{ redis_conf_file }}\""
+    create: yes
+    state: present
+    notify: Restart redis
+
 - name: redis_conf_file_ansible exist?
   # see if this is the first ansible-play.
   stat:
