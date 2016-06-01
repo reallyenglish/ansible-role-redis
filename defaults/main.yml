@@ -72,3 +72,4 @@ redis_sentinel_master_name:
 redis_sentinel_master_port: 6379
 redis_sentinel_quorum: 2
 redis_sentinel_parallel_syncs: 1
+redis_sentinel_down_after_milliseconds: 5000

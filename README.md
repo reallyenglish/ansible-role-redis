@@ -76,6 +76,7 @@ Role Variables
 | redis\_sentinel\_master\_port | the port to monitor redis | 6379 |
 | redis\_sentinel\_quorum | quorum value | 2 |
 | redis\_sentinel\_parallel\_syncs | parallel-syncs | 1 |
+| redis\_sentinel\_down\_after\_milliseconds | down-after-milliseconds | 5000 (or 5 sec) |
 
 Dependencies
 ------------
