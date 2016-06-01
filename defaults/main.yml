@@ -61,7 +61,7 @@ redis_config_client_output_buffer_limit:
 redis_config_hz: 10
 redis_config_aof_rewrite_incremental_fsync: "yes"
 
-redis_sentinel_group:
+redis_sentinel_group: []
 
 redis_sentinel_conf_file: "{{ redis_conf_dir }}/sentinel.conf"
 redis_sentinel_conf_file_ansible: "{{ redis_sentinel_conf_file }}.ansible"
