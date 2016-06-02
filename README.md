@@ -66,7 +66,6 @@ Role Variables
 | redis\_config\_client\_output\_buffer\_limit | client-output-buffer-limit | [ "normal 0 0 0", "slave 256mb 64mb 60", "pubsub 32mb 8mb 60" ]
 | redis\_config\_hz | hz | 10 |
 | redis\_config\_aof\_rewrite\_incremental\_fsync | aof-rewrite-incremental-fsync | "yes" |
-
 | redis\_sentinel\_group | a list of sentinel nodes| [] |
 | redis\_sentinel\_conf\_file | | {{ redis\_conf\_dir }}/sentinel.conf |
 | redis\_sentinel\_conf\_file\_ansible | | {{ redis\_sentinel\_conf\_file }}.ansible |
