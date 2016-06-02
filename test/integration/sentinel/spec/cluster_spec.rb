@@ -9,27 +9,20 @@ end
 
 master_name = 'testdb'
 slaves = [ server(:slave1), server(:slave2) ]
+password = 'password'
 
-describe server(:master) do
-  describe redis("ping") do
-    it 'should ping server' do
-      expect(result).to eq('PONG')
-    end
-  end
-end
-
-describe server(:slave1) do
-  describe redis("ping") do
-    it 'should ping server' do
-      expect(result).to eq('PONG')
-    end
-  end
-end
-
-describe server(:slave2) do
-  describe redis("ping") do
-    it 'should ping server' do
-      expect(result).to eq('PONG')
+[ server(:master), server(:slave1), server(:slave2) ].each do |s|
+  describe s do
+    let(:redis) {
+      Redis.new(
+        :host => s.server.address,
+        :port => 6379,
+        :password => password
+      )
+    }
+    it 'should return PONG' do
+      r = redis.ping
+      expect(r).to eq('PONG')
     end
   end
 end
@@ -114,6 +107,7 @@ context 'when client has sentinel support' do
       Redis.new(
         :url => url,
         :sentinels => sentinels,
+        :password => password,
         :role => :master
       )
     }
@@ -121,6 +115,7 @@ context 'when client has sentinel support' do
       Redis.new(
         :url => url,
         :sentinels => sentinels,
+        :password => password,
         :role => :master
       )
     }
@@ -191,6 +186,7 @@ context 'when master redis is down' do
       Redis.new(
         :url => url,
         :sentinels => sentinels,
+        :password => password,
         :role => :master
       )
     }
@@ -198,6 +194,7 @@ context 'when master redis is down' do
       Redis.new(
         :url => url,
         :sentinels => sentinels,
+        :password => password,
         :role => :master
       )
     }
@@ -226,6 +223,7 @@ context 'when the original master is back' do
     let(:redis) {
       Redis.new(
         :host => server(:master).server.address,
+        :password => password,
         :port => 6379
       )
     }
@@ -260,7 +258,7 @@ context 'when server(:master) is promoted to master' do
     describe s do
       let(:sentinel) {
         Redis.new(
-          :host => current_server.address,
+          :host => s.server.address,
           :port => 26379
         )
       }
@@ -268,7 +266,7 @@ context 'when server(:master) is promoted to master' do
         # "debug sleep 10" makes the server a slave by pausing. thus,
         # server(:master) becomes the master.
         # as redis gem does not support debug, use redis-cli.
-        current_server.ssh_exec "redis-cli debug sleep 10"
+        current_server.ssh_exec "redis-cli -a #{password} debug sleep 10"
       end
       it 'should report it is a slave' do
         r = sentinel.sentinel('get-master-addr-by-name', master_name)
@@ -281,7 +279,8 @@ context 'when server(:master) is promoted to master' do
     let(:redis) {
       Redis.new(
         :host => server(:master).server.address,
-        :port => 6379
+        :port => 6379,
+        :password => password
       )
     }
     let(:redis_info_result) {
@@ -300,7 +299,8 @@ context 'when master and slave1 are down' do
     let(:redis) {
       Redis.new(
         :host => server(:slave2).server.address,
-        :port => 6379
+        :port => 6379,
+        :password => password
       )
     }
     let(:sentinel) {
