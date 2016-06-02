@@ -151,9 +151,8 @@ context 'when master redis is down' do
     let(:sentinel_get_master_result) {
       redis.sentinel('get-master-addr-by-name', master_name)
     }
-    it 'should stop redis server' do
-      result = current_server.ssh_exec 'sudo service redis stop >/dev/null 2>&1 && echo -n OK'
-      expect(result).to eq('OK')
+    before do
+      current_server.ssh_exec 'sudo service redis stop'
       current_server.ssh_exec 'sleep 10'
     end
     it 'should report current master is not server(:master)' do
