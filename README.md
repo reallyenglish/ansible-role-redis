@@ -20,6 +20,7 @@ Role Variables
 | redis\_conf\_file | config file for redis, which is updated by redis user | "{{ redis\_conf\_dir }}/redis.conf" |
 | redis\_conf\_file\_ansible | static config file for redis | "{{ redis\_conf\_file }}.ansible"
 | redis\_enable | Enable redis. if true, tasks/redis.yml is invoked | yes |
+| redis\_password | password to authenticate, used by both redis and sentinel | False |
 | redis\_config\_daemonize | daemonize | "yes" |
 | redis\_config\_pidfile | pidfile | "{{ \_\_redis\_config\_pidfile }}" |
 | redis\_config\_port | port | 6379 |

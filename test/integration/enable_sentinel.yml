@@ -2,6 +2,7 @@
   roles:
     - ansible-role-redis
   vars:
+    redis_password: password
     redis_sentinel_master_name: my_database
     redis_sentinel_enable: true
     redis_sentinel_group:

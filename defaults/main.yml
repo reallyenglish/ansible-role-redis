@@ -9,6 +9,7 @@ redis_conf_file_ansible: "{{ redis_conf_file }}.ansible"
 
 redis_enable: yes
 
+redis_password: False
 redis_config_daemonize: "yes"
 redis_config_pidfile: "{{ __redis_config_pidfile }}"
 redis_config_port: 6379

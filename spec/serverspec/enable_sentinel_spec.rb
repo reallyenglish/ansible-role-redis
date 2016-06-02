@@ -10,6 +10,7 @@ redis_log_dir      = '/var/log/redis'
 redis_port         = 6379
 redis_pidfile = '/var/run/redis/redis.pid'
 redis_logfile = '/var/log/redis/redis.log'
+redis_password = 'password'
 
 sentinel_service_name = 'sentinel'
 sentinel_port = 26379
@@ -111,13 +112,13 @@ describe port(redis_port) do
   it { should be_listening }
 end
 
-describe command('redis-cli ping') do
+describe command("redis-cli -a #{redis_password} ping") do
   its(:stdout) { should match /PONG/ }
   its(:stderr) { should eq '' }
   its(:exit_status) { should eq 0 }
 end
 
-describe command("redis-cli -p #{sentinel_port} info") do
+describe command("redis-cli -p #{sentinel_port} -a #{redis_password} info") do
   its(:stdout) { should match /master0:name=my_database,status=ok,address=10.0.2.15:6379,slaves=0,sentinels=1/ }
   its(:stderr) { should match /^$/ }
 end

@@ -10,7 +10,12 @@ databases {{ redis_config_databases }}
 {% for v in redis_config_save -%}
 save {{ v }}
 {% endfor -%}
-
+{% if redis_password %}
+masterauth {{ redis_password }}
+{% endif %}
+{% if redis_password %}
+requirepass {{ redis_password }}
+{% endif %}
 stop-writes-on-bgsave-error {{ redis_config_stop_writes_on_bgsave_error }}
 rdbcompression {{ redis_config_rdbcompression }}
 rdbchecksum {{ redis_config_rdbchecksum }}

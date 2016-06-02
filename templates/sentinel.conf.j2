@@ -4,3 +4,6 @@ logfile {{ redis_sentinel_logfile }}
 sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}
 sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}
 sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}
+{% if redis_password %}
+sentinel auth-pass {{ redis_sentinel_master_name }} {{ redis_password }}
+{% endif %}

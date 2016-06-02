@@ -11,6 +11,7 @@ redis_log_dir      = '/var/log/redis'
 redis_port         = 6379
 redis_pidfile = '/var/run/redis/redis.pid'
 redis_logfile = '/var/log/redis/redis.log'
+redis_password = 'password'
 
 case os[:family]
 when 'freebsd'
@@ -72,7 +73,7 @@ describe port(redis_port) do
   it { should be_listening }
 end
 
-describe command ('redis-cli ping') do
+describe command ("redis-cli -a #{redis_password} ping") do
   its(:stdout) { should match /PONG/ }
   its(:stderr) { should eq '' }
   its(:exit_status) { should eq 0 }
