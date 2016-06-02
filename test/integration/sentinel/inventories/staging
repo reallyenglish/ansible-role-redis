@@ -1,12 +1,4 @@
-# this master becomes a master when initially configured. after that it is not
-# guaranteed. ask sentinel for current master node.
-[master]
+[redis]
 192.168.90.100
-
-[slave]
 192.168.90.201
 192.168.90.202
-
-[redis:children]
-master
-slave
