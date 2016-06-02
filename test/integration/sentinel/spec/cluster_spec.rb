@@ -151,9 +151,9 @@ context 'when master redis is down' do
     let(:sentinel_get_master_result) {
       redis.sentinel('get-master-addr-by-name', master_name)
     }
-    before do
-      current_server.ssh_exec 'sudo service redis stop'
-      current_server.ssh_exec 'sleep 10'
+    before(:all) do
+      server(:master).server.ssh_exec 'sudo service redis stop'
+      sleep 10
     end
     it 'should report current master is not server(:master)' do
       expect(sentinel_get_master_result).not_to eq([ server(:master).server.address, '6379' ])
@@ -219,9 +219,9 @@ end
 
 context 'when the original master is back' do
   describe server(:master) do
-    before do
-      current_server.ssh_exec 'sudo service redis start'
-      current_server.ssh_exec 'sleep 10'
+    before(:all) do
+      server(:master).server.ssh_exec 'sudo service redis start'
+      sleep 10
     end
     let(:redis) {
       Redis.new(
@@ -283,6 +283,7 @@ context 'when the original master is back' do
       redis.info
     }
     it 'should report it is the master' do
+      sleep 10
       expect(redis_info_result['role']).to eq('master')
       expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
     end
