@@ -245,6 +245,7 @@ context 'when the original master is back' do
     it 'should report it is a slave' do
       expect(redis_info_result['role']).to eq('slave')
       expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
+      expect(sentinel_get_master_result).not_to eq([ server(:master).server.address, '6379' ])
     end
 
     it 'should return buz that has been set while it was down' do
