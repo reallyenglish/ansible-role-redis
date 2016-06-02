@@ -221,7 +221,7 @@ context 'when the original master is back' do
   describe server(:master) do
     before(:all) do
       server(:master).server.ssh_exec 'sudo service redis start'
-      sleep 10
+      sleep 15
     end
     let(:redis) {
       Redis.new(
