@@ -1,3 +1,7 @@
 redis_sentinel_enable: true
-redis_sentinel_master_name: test_master
-redis_sentinel_master_ip: 192.168.90.100
+redis_password: password
+redis_sentinel_master_name: testdb
+redis_sentinel_group:
+  - 192.168.90.100
+  - 192.168.90.201
+  - 192.168.90.202

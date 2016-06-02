@@ -12,7 +12,10 @@ namespace :integration do
 
   namespace :sentinel do
     desc 'test sentinel'
-    task :test => [ :prepare ] do
+    task :test => [ :cleanup, :prepare, :do_test, :cleanup ]
+
+    desc 'Do the test'
+    task :do_test do
       Dir.chdir("#{base_dir}/sentinel") do
         sh 'vagrant up'
         sh 'bundle exec rspec'

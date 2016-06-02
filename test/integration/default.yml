@@ -4,3 +4,4 @@
     - ansible-role-redis
   vars:
     redis_config_tcp_backlog: 512
+    redis_password: password

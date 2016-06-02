@@ -2,9 +2,14 @@
 # defaults file for ansible-role-redis
 redis_user: redis
 redis_group: redis
+redis_port: 6379
 redis_conf_dir: "{{ __redis_conf_dir }}"
 redis_conf_file: "{{ redis_conf_dir }}/redis.conf"
+redis_conf_file_ansible: "{{ redis_conf_file }}.ansible"
 
+redis_enable: yes
+
+redis_password: False
 redis_config_daemonize: "yes"
 redis_config_pidfile: "{{ __redis_config_pidfile }}"
 redis_config_port: 6379
@@ -57,14 +62,18 @@ redis_config_client_output_buffer_limit:
 redis_config_hz: 10
 redis_config_aof_rewrite_incremental_fsync: "yes"
 
-redis_config_slaveof:
+redis_sentinel_group: []
 
 redis_sentinel_conf_file: "{{ redis_conf_dir }}/sentinel.conf"
+redis_sentinel_conf_file_ansible: "{{ redis_sentinel_conf_file }}.ansible"
 redis_sentinel_enable: false
 redis_sentinel_port: 26379
 redis_sentinel_dir: /tmp
-redis_sentinel_master_name: master
-redis_sentinel_master_ip: ""
+redis_sentinel_master_name:
 redis_sentinel_master_port: 6379
-redis_sentinel_quorum: 3
+redis_sentinel_quorum: 2
 redis_sentinel_parallel_syncs: 1
+redis_sentinel_down_after_milliseconds: 5000
+redis_sentinel_failover_timeout: 180000
+redis_sentinel_logdir: "{{ __redis_sentinel_logdir }}"
+redis_sentinel_logfile: "{{ redis_sentinel_logdir }}/sentinel.log"

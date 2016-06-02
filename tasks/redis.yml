@@ -1,0 +1,169 @@
+---
+
+# TODO
+# - auth
+- name: Create config dir for redis
+  # when failover takes place, the config file is dinamycally overwritten by
+  # redis user. the directory must be writable by the user.
+  file:
+    path: "{{ redis_conf_dir }}"
+    mode: 0755
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    state: directory
+
+- name: Create rc.conf.d for redis
+  lineinfile:
+    dest: /etc/rc.conf.d/redis
+    regexp: "^redis_config="
+    line: "redis_config=\"{{ redis_conf_file }}\""
+    create: yes
+    state: present
+  when: ansible_os_family == 'FreeBSD'
+  notify: Restart redis
+
+- name: redis_conf_file_ansible exist?
+  # see if this is the first ansible-play.
+  stat:
+    path: "{{ redis_conf_file_ansible }}"
+  register: redis_conf_file_ansible_result
+
+- name: Create redis_conf_file if it does not exist
+  file:
+    path: "{{ redis_conf_file }}"
+    state: touch
+  changed_when: false
+
+- name: Make redis_conf_file editable by redis
+  file:
+    path: "{{ redis_conf_file }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    state: file
+
+- name: Register is_master is true
+  set_fact:
+    redis_fact_is_master: true
+  changed_when: false
+  when: redis_sentinel_enable and
+        (
+          redis_sentinel_group[0] in ansible_all_ipv4_addresses or 
+          redis_sentinel_group[0] == ansible_fqdn or
+          redis_sentinel_group[0] == ansible_hostname
+        )
+
+- name: Register is_master is false
+  set_fact:
+    redis_fact_is_master: false
+  changed_when: false
+  when: not redis_fact_is_master is defined
+
+- name: See if a slaveof line already exists in the main Redis config
+  shell: grep '^slaveof' {{ redis_conf_file }} || true
+  changed_when: false
+  register: redis_register_main_config_slaveof
+
+- name: Register redis_fact_has_slaveof is true
+  set_fact:
+    redis_fact_has_slaveof: true
+  changed_when: false
+  when: redis_register_main_config_slaveof.stdout
+
+- name: Register redis_fact_has_slaveof is false
+  set_fact:
+    redis_fact_has_slaveof: false
+  changed_when: false
+  when: not redis_fact_has_slaveof is defined
+
+- name: Remove default save lines from the main Redis config
+  lineinfile:
+    regexp: '^save'
+    dest: '{{ redis_conf_file }}'
+    state: 'absent'
+  register: redis_register_remove_saves
+  when: not redis_conf_file_ansible_result.stat.exists
+  notify: Restart redis
+
+- name: Remove include line only if removing the save lines changed
+  lineinfile:
+    regexp: '^include {{ redis_conf_file_ansible }}'
+    dest: '{{ redis_conf_file }}'
+    state: 'absent'
+  when: redis_register_remove_saves is defined and
+        redis_register_remove_saves | changed
+  notify: Restart redis
+
+- name: Insert save lines to the main Redis config
+  lineinfile:
+    regexp: '^save {{ item }}'
+    dest: '{{ redis_conf_file }}'
+    line: 'save {{ item }}'
+    state: 'present'
+  when: redis_config_save is defined and redis_config_save
+  with_items: '{{ redis_config_save }}'
+  notify: Restart redis
+
+- name: Insert include line before the first save line to the main Redis config
+  lineinfile:
+    regexp: '^include {{ redis_conf_file_ansible }}'
+    dest: '{{ redis_conf_file }}'
+    line: 'include {{ redis_conf_file_ansible }}'
+    insertbefore: '{{ redis_config_save[0] | d(omit) }}'
+    state: present
+  notify: Restart redis
+
+- name: Detect the real master from Redis Sentinel
+  # all nodes must know who is the master when:
+  #
+  # - sentinel is enabled
+  # - the node is a slave
+  # - no slaveof is found in redis.conf
+  shell: "redis-cli -h {{ redis_sentinel_group[0] }} -p {{ redis_sentinel_port }} info | grep 'address=' | awk -F 'address=' '{print $2}' | tr ',' '\n' | grep ':' | awk -F ':' '{print $1}'"
+  changed_when: False
+  when: redis_sentinel_enable and
+        not redis_fact_is_master and 
+        not redis_fact_has_slaveof
+  register: redis_register_real_master
+
+- name: Insert the real slaveof to all slaves
+  # slaveof must be in redis.conf, not in resid.conf.ansible because:
+  #
+  # - slaveof is inserted by redis user
+  # - redis fails to start when same master is both in the files
+  # 
+  # insert slaveof when:
+  #
+  # - when sentinel is enabled
+  # - the node is a slave
+  # - no slaveof in redis.conf
+  lineinfile:
+    regexp: '^slaveof'
+    dest: '{{ redis_conf_file }}'
+    line: 'slaveof {{ redis_register_real_master.stdout }} {{ redis_port }}'
+    insertafter: 'EOF'
+    state: 'present'
+  when: redis_sentinel_enable and
+        not redis_fact_is_master and
+        not redis_fact_has_slaveof
+  notify: Restart redis
+
+- name: Create redis.conf.ansible
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis_conf_file_ansible }}"
+  notify: Restart redis
+
+- name: Ensure log dir exists
+  file:
+    path: "{{ redis_config_logfile | dirname }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    mode: 0755
+    state: directory
+  notify: Restart redis
+
+- name: Start redis
+  service:
+    name: redis
+    enabled: yes
+    state: started
