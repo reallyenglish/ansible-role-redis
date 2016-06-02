@@ -253,7 +253,9 @@ context 'when the original master is back' do
       expect(r).to eq('buz')
     end
   end
+end
 
+context 'when server(:master) is promoted to master' do
   slaves.each do |s|
     describe s do
       let(:sentinel) {
@@ -263,7 +265,9 @@ context 'when the original master is back' do
         )
       }
       before :each do
-        # redis gem does not support debug
+        # "debug sleep 10" makes the server a slave by pausing. thus,
+        # server(:master) becomes the master.
+        # as redis gem does not support debug, use redis-cli.
         current_server.ssh_exec "redis-cli debug sleep 10"
       end
       it 'should report it is a slave' do
