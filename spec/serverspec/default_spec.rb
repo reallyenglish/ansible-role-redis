@@ -78,35 +78,3 @@ describe command ("redis-cli -a #{redis_password} ping") do
   its(:stderr) { should eq '' }
   its(:exit_status) { should eq 0 }
 end
-#
-#describe file("#{rsyslog_config_dir}/200_client.cfg") do
-#  regex_to_test = [
-#    '$ActionQueueType LinkedList',
-#    '$ActionQueueFileName localhost:5140-queue',
-#    '$ActionResumeRetryCount -1',
-#    '$ActionQueueSaveOnShutdown on',
-#    '*.* @@localhost:5140;RSYSLOG_ForwardFormat'
-#  ]
-#  it { should be_file }
-#  regex_to_test.each do |r|
-#    its(:content) { should match Regexp.escape(r) }
-#  end
-#end
-#
-#describe file('/tmp/dummy.log') do
-#  it { should be_file }
-#end
-#
-## input(
-##   type="imfile"
-##   File="/tmp/dummy.log"
-##   Tag="dummy"
-##   Facility="local1"
-## )
-#
-#describe file("#{ rsyslog_config_dir }/900_dummy.log.cfg") do
-#  it { should be_file }
-#  its(:content) { should match Regexp.escape('File="/tmp/dummy.log"') }
-#  its(:content) { should match /Tag="dummy"/ }
-#  its(:content) { should match /Facility="local1"/ }
-#end
