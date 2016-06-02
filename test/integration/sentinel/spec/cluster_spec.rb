@@ -294,3 +294,38 @@ context 'when server(:master) is promoted to master' do
     end
   end
 end
+
+context 'when master and slave1 are down' do
+  describe server(:slave2) do
+    let(:redis) {
+      Redis.new(
+        :host => server(:slave2).server.address,
+        :port => 6379
+      )
+    }
+    let(:sentinel) {
+      Redis.new(
+        :host => server(:slave2).server.address,
+        :port => 26379
+      )
+    }
+    let(:sentinel_get_master_result) {
+      sentinel.sentinel('get-master-addr-by-name', master_name)
+    }
+    let(:redis_info_result) {
+      redis.info
+    }
+    before(:all) do
+      server(:master).server.ssh_exec 'sudo service redis stop'
+      sleep 10
+      server(:slave1).server.ssh_exec 'sudo service redis stop'
+      sleep 10
+    end
+
+    it 'should be the master' do
+      expect(sentinel_get_master_result).to eq([server(:slave2).server.address, '6379'])
+      expect(redis_info_result['role']).to eq('master')
+      expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
+    end
+  end
+end
