@@ -15,6 +15,9 @@ if ENV['JENKINS_HOME']
   #   /usr/local/lib/ruby/gems/2.2/gems/bundler-1.12.1/lib/bundler/rubygems_integration.rb:387:in `block in replace_bin_path'
   #   /usr/local/bin/vagrant:23:in `<top (required)>'
   #
+  # this causes "vagrant ssh-config" to fail, invoked in a spec file, i.e. when
+  # you need to ssh to a vagrant host.
+  #
   # include the path of bin to vagrant
   vagrant_real_path = `pkg info -l vagrant | grep -v '/usr/local/bin/vagrant' | grep -E 'bin\/vagrant$'| sed -e 's/^[[:space:]]*//'`
   vagrant_bin_dir = File.dirname(vagrant_real_path)
