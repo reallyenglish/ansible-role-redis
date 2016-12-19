@@ -1,6 +1,8 @@
+# foo
 port {{ redis_sentinel_port }}
 dir {{ redis_sentinel_dir }}
 logfile {{ redis_sentinel_logfile }}
+sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_master_host }} {{ redis_sentinel_master_port }} {{ redis_sentinel_quorum }}
 sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}
 sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}
 sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}
