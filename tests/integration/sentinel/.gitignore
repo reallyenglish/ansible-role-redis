@@ -1,1 +1,2 @@
 roles/ansible-role-redis/
+/.kitchen/
