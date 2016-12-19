@@ -70,7 +70,6 @@ redis_sentinel_enable: false
 redis_sentinel_port: 26379
 redis_sentinel_dir: /tmp
 redis_sentinel_master_name: ""
-redis_sentinel_master_host: ""
 redis_sentinel_master_port: 6379
 redis_sentinel_quorum: 2
 redis_sentinel_parallel_syncs: 1

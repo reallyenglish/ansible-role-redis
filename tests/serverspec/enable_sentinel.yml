@@ -4,7 +4,6 @@
   vars:
     redis_password: password
     redis_sentinel_master_name: my_database
-    redis_sentinel_master_host: "{{ ansible_default_ipv4.address }}"
     redis_sentinel_enable: true
     redis_sentinel_group:
       - "{{ ansible_default_ipv4.address }}"
