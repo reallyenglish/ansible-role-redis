@@ -19,6 +19,7 @@ sentinel_user = 'redis'
 sentinel_group = 'redis'
 sentinel_log_dir = '/var/log/redis'
 sentinel_log_file = "#{sentinel_log_dir}/sentinel.log"
+sentinel_restart_command = "service sentinel restart"
 
 case os[:family]
 when 'freebsd'
@@ -45,6 +46,9 @@ describe file (sentinel_conf) do
   it { should be_grouped_into sentinel_group }
   its(:content) { should match /^include #{ Regexp.escape(sentinel_conf_ansible) }/ }
   its(:content) { should match /^sentinel monitor my_database #{ Regexp.escape('10.0.2.15') } 6379 2/ }
+  its(:content) { should match /sentinel down-after-milliseconds my_database 5000/ }
+  its(:content) { should match /sentinel parallel-syncs my_database 2/ }
+  its(:content) { should match /sentinel failover-timeout my_database 180001/ }
 end
 
 describe file(sentinel_conf_ansible) do
@@ -52,10 +56,6 @@ describe file(sentinel_conf_ansible) do
   its(:content) { should match /port 26379/ }
   its(:content) { should match /dir \/tmp/ }
   its(:content) { should match /logfile #{ Regexp.escape(sentinel_log_file) }/ }
-  its(:content) { should match /sentinel parallel-syncs my_database/ }
-  its(:content) { should match /sentinel down-after-milliseconds my_database 5000/ }
-  its(:content) { should match /sentinel parallel-syncs my_database 1/ }
-  its(:content) { should match /sentinel failover-timeout my_database 180000/ }
 end
 
 describe file(sentinel_log_dir) do
@@ -121,4 +121,8 @@ end
 describe command("redis-cli -p #{sentinel_port} -a #{redis_password} info") do
   its(:stdout) { should match /master0:name=my_database,status=ok,address=10.0.2.15:6379,slaves=0,sentinels=1/ }
   its(:stderr) { should match /^$/ }
+end
+
+describe command(sentinel_restart_command) do
+  its(:exit_status) { should eq 0 }
 end

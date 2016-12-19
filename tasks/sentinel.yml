@@ -45,6 +45,33 @@
   when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
   notify: Restart sentinel
 
+- name: Inject down-after-milliseconds to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: Inject parallel-syncs to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: Inject failover-timeout to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
 - name: include redis_sentinel_conf_file_ansible in sentinel.conf
   # make sure sentinel.conf.ansible is included
   lineinfile:
