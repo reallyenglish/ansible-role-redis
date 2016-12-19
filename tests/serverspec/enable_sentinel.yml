@@ -1,0 +1,14 @@
+- hosts: localhost
+  roles:
+    - ansible-role-redis
+  vars:
+    redis_password: password
+    redis_sentinel_master_name: my_database
+    redis_sentinel_enable: true
+    redis_sentinel_group:
+      - "{{ ansible_default_ipv4.address }}"
+    # XXX use non-default values for these because sentinel removes these
+    # config from sentinel.conf if the values of these are identical to the
+    # default
+    redis_sentinel_parallel_syncs: 2 # this is not recommended but is here for testing purpose
+    redis_sentinel_failover_timeout: 180001

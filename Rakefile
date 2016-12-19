@@ -1,51 +1,46 @@
-require 'tempfile'
 require 'pathname'
 
-role_dir = Pathname.new(__FILE__).dirname
-role_name = Pathname.new(role_dir).basename
+root_dir = Pathname.new(__FILE__).dirname
+integration_test_dir = root_dir + 'tests' + 'integration'
+integration_test_dirs = Pathname.new(integration_test_dir).children.select { |c| c.directory? }
 
-task default: %w[ integration:sentinel:test ]
+task default: %w[ test ]
 
-namespace :integration do
-
-  base_dir = 'test/integration'
-
-  namespace :sentinel do
-    desc 'test sentinel'
-    task :test => [ :cleanup, :prepare, :do_test, :cleanup ]
-
-    desc 'Do the test'
-    task :do_test do
-      Dir.chdir("#{base_dir}/sentinel") do
-        sh 'vagrant up'
-        sh 'bundle exec rspec'
+desc 'run all tests'
+task :test do
+  integration_test_dirs.each do |d|
+    rakefile = d + 'Rakefile'
+    if rakefile.exist? and rakefile.file?
+      Dir.chdir(d) do
+        puts "entering to %s" % [ d ]
+        begin
+          puts 'running rake'
+          sh 'rake'
+        ensure
+          sh 'rake clean'
+        end
       end
-    end
-
-    desc 'prepare the test environment'
-    task :prepare do
-      ignore_files = %w[ vendor .kitchen .git test spec ].map { |f| "#{role_name}/#{f}" }
-      tmpfile = Tempfile.new('.tarignore')
-      tmpfile.write ignore_files.join("\n")
-      tmpfile.close
-      sh "tar -c -X #{tmpfile.path} -C ../ -f - #{role_name} | tar -x -C #{base_dir}/sentinel/roles -f -"
-    end
-
-    desc 'cleanup sentinel'
-    task :cleanup => [ :cleanup_vagrant, :cleanup_role ] do
-    end
-    
-    desc 'destroy vagrant nodes'
-    task :cleanup_vagrant do
-      Dir.chdir("#{base_dir}/sentinel") do
-        sh 'vagrant destroy -f'
-      end
-    end
-
-    desc "rm #{base_dir}/sentinel/roles/*"
-    task :cleanup_role do
-      sh "rm -rf #{base_dir}/sentinel/roles/*"
+    else
+      puts 'Rakefile does not exist, skipping'
     end
   end
+end
 
+task :clean do
+  integration_test_dirs.each do |d|
+    rakefile = d + 'Rakefile'
+    if rakefile.exist? and rakefile.file?
+      Dir.chdir(d) do
+        puts "entering to %s" % [ d ]
+        begin
+          puts 'running rake clean'
+          sh 'rake clean'
+        rescue Exception => e
+          puts 'rake clean clean failed:'
+          puts e.message
+          puts e.backtrace.inspect
+        end
+      end
+    end
+  end
 end

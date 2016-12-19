@@ -28,17 +28,46 @@
   register: redis_sentinel_conf_file_ansible_stat_result
 
 - name: Inject monitor lines to sentinel.conf
-  # add "sentinel monitor" when sentinel.conf.ansible has not been created
-  # the first node in redis_sentinel_group becomes the master.
+  # "sentinel monitor" line cannot be in included files because:
   #
-  # TODO
-  # * configure failover-timeout
-  # * configure parallel-syncs
-  # * understand why include must be after a variable
+  # * the documentation states that "Redis always uses the last processed line
+  #   as value of a configuration directive"
+  # * but in reality, it complains "Duplicated master name" if "sentinel
+  #   monitor" is in a included file, and another one which redis dinamically
+  #   generates on runtime
+  #
+  # this task should be performed only when ansible plays for the first time
   lineinfile:
     regexp: "^sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }}"
     dest: "{{ redis_sentinel_conf_file }}"
     line: "sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }} {{ redis_sentinel_master_port }} {{ redis_sentinel_quorum }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: Inject down-after-milliseconds to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel down-after-milliseconds {{ redis_sentinel_master_name }} {{ redis_sentinel_down_after_milliseconds }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: Inject parallel-syncs to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel parallel-syncs {{ redis_sentinel_master_name }} {{ redis_sentinel_parallel_syncs }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
+- name: Inject failover-timeout to sentinel.conf
+  lineinfile:
+    regexp: "^sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel failover-timeout {{ redis_sentinel_master_name }} {{ redis_sentinel_failover_timeout }}"
     state: present
   when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
   notify: Restart sentinel
@@ -84,4 +113,3 @@
   service:
     name: sentinel
     enabled: yes
-    state: started

@@ -125,6 +125,13 @@
         not redis_fact_has_slaveof
   register: redis_register_real_master
 
+- name: Make sure redis-cli returns successfully
+  # redis-cli returns zero exit status but the result can be a failure
+  assert:
+    that:
+      - redis_register_real_master.stderr == ''
+  when: "'stderr' in redis_register_real_master"
+
 - name: Insert the real slaveof to all slaves
   # slaveof must be in redis.conf, not in resid.conf.ansible because:
   #
