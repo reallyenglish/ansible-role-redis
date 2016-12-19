@@ -27,6 +27,24 @@
     path: "{{ redis_sentinel_conf_file_ansible }}"
   register: redis_sentinel_conf_file_ansible_stat_result
 
+- name: Inject monitor lines to sentinel.conf
+  # "sentinel monitor" line cannot be in included files because:
+  #
+  # * the documentation states that "Redis always uses the last processed line
+  #   as value of a configuration directive"
+  # * but in reality, it complains "Duplicated master name" if "sentinel
+  #   monitor" is in a included file, and another one which redis dinamically
+  #   generates on runtime
+  #
+  # this task should be performed only when ansible plays for the first time
+  lineinfile:
+    regexp: "^sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }}"
+    dest: "{{ redis_sentinel_conf_file }}"
+    line: "sentinel monitor {{ redis_sentinel_master_name }} {{ redis_sentinel_group[0] }} {{ redis_sentinel_master_port }} {{ redis_sentinel_quorum }}"
+    state: present
+  when: not redis_sentinel_conf_file_ansible_stat_result.stat.exists
+  notify: Restart sentinel
+
 - name: include redis_sentinel_conf_file_ansible in sentinel.conf
   # make sure sentinel.conf.ansible is included
   lineinfile:
