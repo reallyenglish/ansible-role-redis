@@ -162,8 +162,8 @@
   # - no slaveof in redis.conf
   lineinfile:
     regexp: '^slaveof'
-    dest: '{{ redis_conf_file }}'
-    line: 'slaveof {{ redis_register_real_master.stdout }} {{ redis_port }}'
+    dest: "{{ redis_conf_file }}"
+    line: "slaveof {{ redis_register_real_master.stdout }} {{ redis_config_merged['port'] }}"
     insertafter: 'EOF'
     state: 'present'
   when: redis_sentinel_enable and
