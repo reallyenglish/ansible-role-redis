@@ -22,6 +22,12 @@ when 'freebsd'
   redis_dir          = '/var/db/redis'
   redis_pidfile = '/var/run/redis/redis.pid'
   redis_logfile = '/var/log/redis/redis.log'
+when "redhat"
+  redis_package_name = "redis"
+  redis_service_name = "redis"
+  redis_config       = "/etc/redis.conf"
+  redis_pidfile      = '/var/run/redis/redis.pid'
+  redis_logfile      = '/var/log/redis/redis.log'
 end
 
 redis_config_ansible = "#{ redis_config }.ansible"
