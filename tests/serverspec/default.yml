@@ -1,9 +1,17 @@
 - hosts: all
   pre_tasks:
   roles:
+    - reallyenglish.redhat-repo
     - ansible-role-redis
   vars:
     redis_config:
       databases: 17
       save 900: 1
     redis_password: password
+    redhat_repo_extra_packages:
+      - epel-release
+    redhat_repo:
+      epel:
+        mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
+        gpgcheck: yes
+        enabled: yes
