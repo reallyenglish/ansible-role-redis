@@ -12,9 +12,12 @@
     group: "{{ redis_group }}"
     state: directory
 
+- set_fact:
+    redis_config_merged: "{{ redis_config_default | combine(redis_config) }}"
+
 - name: Create DB directory
   file:
-    path: "{{ redis_db_dir }}"
+    path: "{{ redis_config_merged['dir'] }}"
     mode: 0755
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
@@ -26,11 +29,16 @@
     path: "{{ redis_conf_file_ansible }}"
   register: redis_conf_file_ansible_result
 
+- name: See if redis_conf_file exists
+  stat:
+    path: "{{ redis_conf_file }}"
+  register: register_redis_conf_file
+
 - name: Create redis_conf_file if it does not exist
   file:
     path: "{{ redis_conf_file }}"
     state: touch
-  changed_when: false
+  when: not register_redis_conf_file.stat.exists
 
 - name: Make redis_conf_file editable by redis
   file:
@@ -91,14 +99,21 @@
         redis_register_remove_saves | changed
   notify: Restart redis
 
+- set_fact:
+    redis_config_save_keys: "{{ redis_config_merged.keys() | select('search', 'save \\d+') | list }}"
+
+- debug:
+    var: redis_config_save_keys
+
+
 - name: Insert save lines to the main Redis config
   lineinfile:
-    regexp: '^save {{ item }}'
+    regexp: '^{{ item }} {{ redis_config_merged[item] }}'
     dest: '{{ redis_conf_file }}'
-    line: 'save {{ item }}'
+    line: "{{ item }} {{ redis_config_merged[item] }}"
     state: 'present'
-  when: redis_config_save is defined and redis_config_save
-  with_items: '{{ redis_config_save }}'
+  when: redis_config_save_keys | length > 0
+  with_items: '{{ redis_config_save_keys }}'
   notify: Restart redis
 
 - name: Insert include line before the first save line to the main Redis config
@@ -106,7 +121,7 @@
     regexp: '^include {{ redis_conf_file_ansible }}'
     dest: '{{ redis_conf_file }}'
     line: 'include {{ redis_conf_file_ansible }}'
-    insertbefore: '{{ redis_config_save[0] | d(omit) }}'
+    insertbefore: "{{ redis_config_save_keys[0] }} {{ redis_config_merged[redis_config_save_keys[0]] }}"
     state: present
   notify: Restart redis
 
@@ -160,7 +175,7 @@
 
 - name: Ensure log dir exists
   file:
-    path: "{{ redis_config_logfile | dirname }}"
+    path: "{{ redis_config_merged['logfile'] | dirname }}"
     owner: "{{ redis_user }}"
     group: "{{ redis_group }}"
     mode: 0755
@@ -169,6 +184,6 @@
 
 - name: Start redis
   service:
-    name: "{{ __redis_service }}"
+    name: "{{ redis_service }}"
     enabled: yes
     state: started
