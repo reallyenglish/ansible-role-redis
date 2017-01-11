@@ -105,6 +105,10 @@
 - debug:
     var: redis_config_save_keys
 
+- assert:
+    msg: You need at least one `save` in redis.conf
+    that:
+      - redis_config_save_keys | length > 0
 
 - name: Insert save lines to the main Redis config
   lineinfile:
