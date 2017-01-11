@@ -22,7 +22,7 @@
   when: ansible_os_family == 'FreeBSD'
   notify: Restart redis
 
-- name: redis_conf_file_ansible exist?
+- name: Register redis_conf_file_ansible
   # see if this is the first ansible-play.
   stat:
     path: "{{ redis_conf_file_ansible }}"
