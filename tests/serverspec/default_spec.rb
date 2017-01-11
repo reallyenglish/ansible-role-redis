@@ -1,23 +1,27 @@
 require 'spec_helper'
 require 'serverspec'
 
-redis_package_name = 'redis'
-redis_service_name = 'redis'
+redis_package_name = 'redis-server'
+redis_service_name = 'redis-server'
 redis_config       = '/etc/redis/redis.conf'
 redis_user         = 'redis'
 redis_group        = 'redis'
-redis_dir          = '/var/db/redis'
+redis_dir          = "/var/lib/redis"
 redis_log_dir      = '/var/log/redis'
 redis_port         = 6379
-redis_pidfile = '/var/run/redis/redis.pid'
-redis_logfile = '/var/log/redis/redis.log'
+redis_pidfile = '/var/run/redis/redis-server.pid'
+redis_logfile = '/var/log/redis/redis-server.log'
 redis_password = 'password'
 
 case os[:family]
 when 'freebsd'
   redis_package_name = 'redis'
   redis_service_name = 'redis'
+  redis_service_name = 'redis'
   redis_config       = '/usr/local/etc/redis/redis.conf'
+  redis_dir          = '/var/db/redis'
+  redis_pidfile = '/var/run/redis/redis.pid'
+  redis_logfile = '/var/log/redis/redis.log'
 end
 
 redis_config_ansible = "#{ redis_config }.ansible"
@@ -61,7 +65,8 @@ describe file(redis_config_ansible) do
   its(:content) { should match Regexp.escape("pidfile #{redis_pidfile}") }
   its(:content) { should match Regexp.escape("logfile #{redis_logfile}") }
   its(:content) { should match Regexp.escape("dir #{redis_dir}") }
-  its(:content) { should match /tcp-backlog 512/ }
+  its(:content) { should match(/^port 6379/) } # default
+  its(:content) { should match(/^databases 17$/) } # non-default
 end
 
 describe service(redis_service_name) do

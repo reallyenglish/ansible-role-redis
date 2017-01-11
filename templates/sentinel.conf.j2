@@ -2,6 +2,6 @@ port {{ redis_sentinel_port }}
 dir {{ redis_sentinel_dir }}
 logfile {{ redis_sentinel_logfile }}
 protected-mode no
-{% if redis_password %}
-sentinel auth-pass {{ redis_sentinel_master_name }} {{ redis_password }}
+{% if redis_sentinel_password %}
+sentinel auth-pass {{ redis_sentinel_master_name }} {{ redis_sentinel_password }}
 {% endif %}
