@@ -12,7 +12,6 @@ redis_enable: yes
 
 redis_config_default: "{{ __redis_config_default }}"
 redis_config: {}
-redis_password: False
 
 redis_sentinel_group: []
 
