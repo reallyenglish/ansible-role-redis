@@ -3,7 +3,7 @@
 
 - name: Restart redis
   service:
-    name: redis
+    name: "{{ __redis_service }}"
     state: restarted
     enabled: yes
 

@@ -2,10 +2,13 @@
 # defaults file for ansible-role-redis
 redis_user: redis
 redis_group: redis
+redis_package: "{{ __redis_package }}"
+redis_service: "{{ __redis_service }}"
 redis_port: 6379
 redis_conf_dir: "{{ __redis_conf_dir }}"
 redis_conf_file: "{{ redis_conf_dir }}/redis.conf"
 redis_conf_file_ansible: "{{ redis_conf_file }}.ansible"
+redis_db_dir: "{{ __redis_db_dir }}"
 
 redis_enable: yes
 
@@ -27,7 +30,7 @@ redis_config_stop_writes_on_bgsave_error: "yes"
 redis_config_rdbcompression: "yes"
 redis_config_rdbchecksum: "yes"
 redis_config_dbfilename: dump.rdb
-redis_config_dir: "{{ __redis_config_dir }}"
+redis_config_dir: "{{ __redis_conf_dir }}"
 redis_config_slave_serve_stale_data: "yes"
 redis_config_slave_read_only: "yes"
 redis_config_repl_diskless_sync: "no"

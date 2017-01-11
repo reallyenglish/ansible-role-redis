@@ -1,6 +1,6 @@
 ---
 
-- name: Install redis
-  pkgng:
+- name: Ensure redis is installed
+  apt:
     name: "{{ redis_package }}"
     state: present

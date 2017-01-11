@@ -12,15 +12,13 @@
     group: "{{ redis_group }}"
     state: directory
 
-- name: Create rc.conf.d for redis
-  lineinfile:
-    dest: /etc/rc.conf.d/redis
-    regexp: "^redis_config="
-    line: "redis_config=\"{{ redis_conf_file }}\""
-    create: yes
-    state: present
-  when: ansible_os_family == 'FreeBSD'
-  notify: Restart redis
+- name: Create DB directory
+  file:
+    path: "{{ redis_db_dir }}"
+    mode: 0755
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    state: directory
 
 - name: Register redis_conf_file_ansible
   # see if this is the first ansible-play.
@@ -171,6 +169,6 @@
 
 - name: Start redis
   service:
-    name: redis
+    name: "{{ __redis_service }}"
     enabled: yes
     state: started

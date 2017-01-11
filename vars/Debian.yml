@@ -1,0 +1,9 @@
+---
+__redis_package: redis-server
+__redis_service: redis-server
+__redis_config_pidfile: /var/run/redis/redis-server.pid
+__redis_config_logfile: /var/log/redis/redis.log
+__redis_db_dir: /var/lib/redis/
+__redis_conf_dir: /etc/redis
+
+__redis_sentinel_logdir: /var/log/redis
