@@ -1,34 +1,38 @@
 ---
-__redis_user: redis
-__redis_group: redis
+__redis_user: _redis
+__redis_group: _redis
 __redis_package: redis
 __redis_service: redis
-__redis_conf_dir: /etc
+__redis_conf_dir: /etc/redis
 
 __redis_config_default:
-  # derived from /etc/redis.conf of redis-2.8.19-2.el7.x86_64
-  # except "save"
-  daemonize: "no"
-  pidfile: /var/run/redis/redis.pid
+  # derived from /usr/local/share/examples/redis/redis.conf of redis-3.2.1 except "save" and "logfile"
+  bind: 127.0.0.1
+  protected-mode: "yes"
   port: 6379
   tcp-backlog: 511
-  bind: 127.0.0.1
   timeout: 0
-  tcp-keepalive: 0
+  tcp-keepalive: 300
+  daemonize: "yes"
+  supervised: "no"
+  pidfile: /var/run/redis/redis.pid
   loglevel: notice
-  logfile: /var/log/redis/redis.log
+  syslog-enabled: "yes"
+  syslog-ident: redis
+  syslog-facility: daemon
   databases: 16
   stop-writes-on-bgsave-error: "yes"
   rdbcompression: "yes"
   rdbchecksum: "yes"
   dbfilename: dump.rdb
-  dir: /var/lib/redis/
+  dir: /var/redis
   slave-serve-stale-data: "yes"
   slave-read-only: "yes"
   repl-diskless-sync: "no"
   repl-diskless-sync-delay: 5
   repl-disable-tcp-nodelay: "no"
   slave-priority: 100
+  maxclients: 96
   appendonly: "no"
   appendfilename: "appendonly.aof"
   appendfsync: everysec
@@ -43,8 +47,8 @@ __redis_config_default:
   notify-keyspace-events: '""'
   hash-max-ziplist-entries: 512
   hash-max-ziplist-value: 64
-  list-max-ziplist-entries: 512
-  list-max-ziplist-value: 64
+  list-max-ziplist-size: -2
+  list-compress-depth: 0
   set-max-intset-entries: 512
   zset-max-ziplist-entries: 128
   zset-max-ziplist-value: 64

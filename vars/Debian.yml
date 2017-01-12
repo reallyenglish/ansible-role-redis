@@ -1,4 +1,6 @@
 ---
+__redis_user: redis
+__redis_group: redis
 __redis_package: redis-server
 __redis_service: redis-server
 __redis_conf_dir: /etc/redis
@@ -46,3 +48,5 @@ __redis_config_default:
   client-output-buffer-limit pubsub: 32mb 8mb 60
   hz: 10
   aof-rewrite-incremental-fsync: "yes"
+
+__redis_sentinel_logdir: /var/log/redis

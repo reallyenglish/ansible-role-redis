@@ -287,7 +287,7 @@ context 'when server(:master) is promoted to master' do
       redis.info
     }
     it 'should report it is the master' do
-      sleep 15
+      sleep 30
       expect(redis_info_result['role']).to eq('master')
       expect(redis_info_result['master_host']).not_to eq(server(:master).server.address)
     end

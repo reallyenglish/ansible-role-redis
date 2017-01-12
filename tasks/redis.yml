@@ -102,9 +102,6 @@
 - set_fact:
     redis_config_save_keys: "{{ redis_config_merged.keys() | select('search', 'save \\d+') | list }}"
 
-- debug:
-    var: redis_config_save_keys
-
 - assert:
     msg: You need at least one `save` in redis.conf
     that:
@@ -135,7 +132,7 @@
   # - sentinel is enabled
   # - the node is a slave
   # - no slaveof is found in redis.conf
-  shell: "redis-cli -h {{ redis_sentinel_group[0] }} -p {{ redis_sentinel_port }} info | grep 'address=' | awk -F 'address=' '{print $2}' | tr ',' '\n' | grep ':' | awk -F ':' '{print $1}'"
+  shell: "redis-cli -h {{ redis_sentinel_group[0] }} -p {{ redis_sentinel_config_merged['port'] }} info | grep 'address=' | awk -F 'address=' '{print $2}' | tr ',' '\n' | grep ':' | awk -F ':' '{print $1}'"
   changed_when: False
   when: redis_sentinel_enable and
         not redis_fact_is_master and 
@@ -184,6 +181,7 @@
     group: "{{ redis_group }}"
     mode: 0755
     state: directory
+  when: "{{ 'logfile' in redis_config_merged }}"
   notify: Restart redis
 
 - name: Start redis

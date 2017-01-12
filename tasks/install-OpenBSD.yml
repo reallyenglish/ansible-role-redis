@@ -1,0 +1,6 @@
+---
+
+- name: Install redis
+  openbsd_pkg:
+    name: "{{ redis_package }}"
+    state: present
