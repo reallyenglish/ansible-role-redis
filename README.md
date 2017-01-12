@@ -4,7 +4,8 @@ Install redis
 
 # Requirements
 
-None
+At least one "save $N" as a key must be defined in `redis_sentinel_config`. See
+Example Playbook.
 
 # Role Variables
 
