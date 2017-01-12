@@ -7,6 +7,11 @@ Install and configures redis and sentinel.
 Most of default values are respected but `protected-mode` is `no` by default in
 the role. It is user's responsibility to protect redis and sentinel.
 
+## Notes for uses considering using sentinel for clustering
+
+In the role, sentinel support is supposed to work, but not all platforms have
+been tested. Expect bugs.
+
 ## Notes for Ubuntu and CentOS users
 
 The role installs redis version 2.x.
