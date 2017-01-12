@@ -1,6 +1,26 @@
 # ansible-role-redis
 
-Install redis
+Install and configures redis and sentinel.
+
+## Notes for all users
+
+Most of default values are respected but `protected-mode` is `no` by default in
+the role. It is user's responsibility to protect redis and sentinel.
+
+## Notes for uses considering using sentinel for clustering
+
+In the role, sentinel support is supposed to work, but not all platforms have
+been tested. Expect bugs.
+
+## Notes for Ubuntu and CentOS users
+
+The role installs redis version 2.x.
+
+## Notes for Ubuntu users
+
+Standalone redis configuration should work, but sentinel will not work. See
+[issue #18](https://github.com/reallyenglish/ansible-role-redis/issues/18) and
+[issue #19](https://github.com/reallyenglish/ansible-role-redis/issues/19).
 
 # Requirements
 
@@ -22,19 +42,19 @@ Example Playbook.
 | `redis_conf_file_ansible` | static config file for redis | `{{ redis_conf_file }}.ansible` |
 | `redis_enable` | enable redis. if true, `tasks/redis.yml` is invoked | `true` |
 | `redis_config_default` | dict of defaults for `redis.conf` | `{{ __redis_config_default }}` |
-| `redis_config` | dict that orverrides `redis_config_default` | `{}` |
+| `redis_config` | dict that overrides `redis_config_default` | `{}` |
 
 ## Variables for `sentinel`
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `redis_sentinel_group` | list of sentinel nodes. the first one is the master | `[]` |
+| `redis_sentinel_group` | list of sentinel nodes. The first one is the master | `[]` |
 | `redis_sentinel_service` | service name of sentinel | `{{ __redis_sentinel_service }}` |
 | `redis_sentinel_conf_file` | path to `sentinel.conf` | `{{ __redis_sentinel_conf_file }}` |
 | `redis_sentinel_conf_file_ansible` | path to static config file for redis | `{{ redis_sentinel_conf_file }}.ansible` |
 | `redis_sentinel_enable` | enable sentinel. `tasks/sentinel.yml` is invoked | `false` |
 | `redis_sentinel_password` | password for `sentinel auth-pass` | `""` |
-| `redis_sentinel_master_name` | `master-name`, which is used for sevral sentinel commands | `""` |
+| `redis_sentinel_master_name` | `master-name`, which is used for several sentinel commands | `""` |
 | `redis_sentinel_master_port` | port to monitor redis | `6379` |
 | `redis_sentinel_quorum` | number of quorum | `2` |
 | `redis_sentinel_parallel_syncs` | `sentinel parallel-syncs` | `1` |
