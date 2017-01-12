@@ -5,6 +5,9 @@ redis_sentinel_group:
   - 192.168.90.100
   - 192.168.90.201
   - 192.168.90.202
+redis_sentinel_config:
+  bind: "127.0.0.1 {{ ansible_all_ipv4_addresses | join(' ') }}"
+
 redis_config:
   bind: 0.0.0.0
   save 60: 1
