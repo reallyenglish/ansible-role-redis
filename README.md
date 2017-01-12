@@ -50,10 +50,12 @@ redis_sentinel_config_default:
   port: 26379
   dir: /tmp
   logfile: "{{ redis_sentinel_logfile }}"
-  bind: 127.0.0.1
   protected-mode: "no"
   sentinel auth-pass: "{{ redis_sentinel_master_name }} {{ redis_sentinel_password }}"
 ```
+When you set `bind`, the first IP address MUST NOT be `127.0.0.1` (at least in
+redis 3.2.6). If you want `sentinel` to bind to `127.0.0.1` and others, place it
+to the end.
 
 ## Debian
 
