@@ -1,12 +1,12 @@
 ---
-__redis_user: redis
-__redis_group: redis
+__redis_user: _redis
+__redis_group: _redis
 __redis_package: redis
 __redis_service: redis
-__redis_conf_dir: /usr/local/etc/redis
+__redis_conf_dir: /etc/redis
 
 __redis_config_default:
-  # derived from /usr/local/etc/redis.conf.sample of redis-3.2.6 except "save"
+  # derived from /usr/local/share/examples/redis/redis.conf of redis-3.2.1 except "save" and "logfile"
   bind: 127.0.0.1
   protected-mode: "yes"
   port: 6379
@@ -17,21 +17,24 @@ __redis_config_default:
   supervised: "no"
   pidfile: /var/run/redis/redis.pid
   loglevel: notice
-  logfile: /var/log/redis/redis.log
+  syslog-enabled: "yes"
+  syslog-ident: redis
+  syslog-facility: daemon
   databases: 16
   stop-writes-on-bgsave-error: "yes"
   rdbcompression: "yes"
   rdbchecksum: "yes"
   dbfilename: dump.rdb
-  dir: /var/db/redis/
+  dir: /var/redis
   slave-serve-stale-data: "yes"
   slave-read-only: "yes"
   repl-diskless-sync: "no"
   repl-diskless-sync-delay: 5
   repl-disable-tcp-nodelay: "no"
   slave-priority: 100
+  maxclients: 96
   appendonly: "no"
-  appendfilename: '"appendonly.aof"'
+  appendfilename: "appendonly.aof"
   appendfsync: everysec
   no-appendfsync-on-rewrite: "no"
   auto-aof-rewrite-percentage: 100
@@ -51,9 +54,9 @@ __redis_config_default:
   zset-max-ziplist-value: 64
   hll-sparse-max-bytes: 3000
   activerehashing: "yes"
-  "client-output-buffer-limit normal": 0 0 0
-  "client-output-buffer-limit slave": 256mb 64mb 60
-  "client-output-buffer-limit pubsub": 32mb 8mb 60
+  client-output-buffer-limit normal: 0 0 0
+  client-output-buffer-limit slave: 256mb 64mb 60
+  client-output-buffer-limit pubsub: 32mb 8mb 60
   hz: 10
   aof-rewrite-incremental-fsync: "yes"
 

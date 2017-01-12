@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible-role-redis
-redis_user: redis
-redis_group: redis
+redis_user: "{{ __redis_user }}"
+redis_group: "{{ __redis_group }}"
 redis_package: "{{ __redis_package }}"
 redis_service: "{{ __redis_service }}"
 redis_conf_dir: "{{ __redis_conf_dir }}"

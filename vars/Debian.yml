@@ -1,4 +1,6 @@
 ---
+__redis_user: redis
+__redis_group: redis
 __redis_package: redis-server
 __redis_service: redis-server
 __redis_conf_dir: /etc/redis
