@@ -1,3 +1,16 @@
 {% for k, v in redis_sentinel_config_merged | dictsort() %}
+{#
+    XXX remove this workaround when all platforms have redis 3.2 or newer.
+
+    all 2.x options that are not in 3.x, but protected-mode, has been dealt
+    with by listing them in `var/{{ ansible_os_family }}.yml`. however, I believe
+    this one should be default to `no`. this work around could be avoided by
+    removing it from `redis_sentinel_config_default`, but it would means that users
+    must explicitely set it to `no` always.
+#}
+{% if k == 'protected-mode' and (ansible_os_family == 'Debian' or ansible_os_family == 'RedHat') %}
+{# NOOP #}
+{% else %}
 {{ k }} {{ v }}
+{% endif %}
 {% endfor %}
