@@ -1,0 +1,12 @@
+---
+
+- name: Create rc.conf.d for sentinel
+  lineinfile:
+    dest: /etc/rc.conf.d/sentinel
+    regexp: "^sentinel_config="
+    line: "sentinel_config=\"{{ redis_sentinel_conf_file }}\""
+    create: yes
+    state: present
+  notify: Restart sentinel
+  when:
+    - "{{ ansible_os_family == 'FreeBSD' }}"

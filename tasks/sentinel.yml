@@ -1,5 +1,10 @@
 ---
 
+- set_fact:
+    redis_sentinel_config_merged: "{{ redis_sentinel_config_default | combine(redis_sentinel_config) }}"
+
+- include: "configure-sentinel-{{ ansible_os_family }}.yml"
+
 - name: Create conf directory
   file:
     path: "{{ redis_conf_dir }}"
@@ -89,17 +94,6 @@
     dest: "{{ redis_sentinel_conf_file_ansible }}"
     src: sentinel.conf.j2
   notify: Restart sentinel
-
-- name: Create rc.conf.d for sentinel
-  lineinfile:
-    dest: /etc/rc.conf.d/sentinel
-    regexp: "^sentinel_config="
-    line: "sentinel_config=\"{{ redis_sentinel_conf_file }}\""
-    create: yes
-    state: present
-  notify: Restart sentinel
-  when:
-    - "{{ ansible_os_family == 'FreeBSD' }}"
 
 - name: Create logdir
   file:

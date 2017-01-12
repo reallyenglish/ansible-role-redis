@@ -71,4 +71,5 @@ suites:
     verifier:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/enable_sentinel_spec.rb
-    includes: freebsd
+    includes:
+      - freebsd-10.3-amd64

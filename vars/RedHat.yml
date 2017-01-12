@@ -55,3 +55,5 @@ __redis_config_default:
   client-output-buffer-limit pubsub: 32mb 8mb 60
   hz: 10
   aof-rewrite-incremental-fsync: "yes"
+
+__redis_sentinel_logdir: /var/log/redis
