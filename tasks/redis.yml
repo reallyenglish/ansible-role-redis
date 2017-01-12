@@ -102,9 +102,6 @@
 - set_fact:
     redis_config_save_keys: "{{ redis_config_merged.keys() | select('search', 'save \\d+') | list }}"
 
-- debug:
-    var: redis_config_save_keys
-
 - assert:
     msg: You need at least one `save` in redis.conf
     that:
