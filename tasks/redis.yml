@@ -132,7 +132,7 @@
   # - sentinel is enabled
   # - the node is a slave
   # - no slaveof is found in redis.conf
-  shell: "redis-cli -h {{ redis_sentinel_group[0] }} -p {{ redis_sentinel_port }} info | grep 'address=' | awk -F 'address=' '{print $2}' | tr ',' '\n' | grep ':' | awk -F ':' '{print $1}'"
+  shell: "redis-cli -h {{ redis_sentinel_group[0] }} -p {{ redis_sentinel_config_merged['port'] }} info | grep 'address=' | awk -F 'address=' '{print $2}' | tr ',' '\n' | grep ':' | awk -F ':' '{print $1}'"
   changed_when: False
   when: redis_sentinel_enable and
         not redis_fact_is_master and 
