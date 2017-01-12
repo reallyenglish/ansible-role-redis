@@ -27,6 +27,12 @@ when 'freebsd'
   redis_service_name = 'redis'
   redis_config       = '/usr/local/etc/redis/redis.conf'
   sentinel_conf = '/usr/local/etc/redis/sentinel.conf'
+when "redhat"
+  sentinel_service_name     = "redis-sentinel"
+  redis_config              = "/etc/redis.conf"
+  sentinel_conf             = "/etc/redis-sentinel.conf"
+  sentinel_restart_command  = "systemctl restart #{sentinel_service_name}"
+  redis_dir                 = "/var/lib/redis"
 end
 
 redis_config_ansible = "#{ redis_config }.ansible"
@@ -119,7 +125,7 @@ describe command("redis-cli -a #{redis_password} ping") do
 end
 
 describe command("redis-cli -p #{sentinel_port} -a #{redis_password} info") do
-  its(:stdout) { should match /master0:name=my_database,status=ok,address=10.0.2.15:6379,slaves=0,sentinels=1/ }
+  its(:stdout) { should match /master0:name=my_database,status=ok,address=#{ Regexp.escape("10.0.2.15:6379") },slaves=0,sentinels=1/ }
   its(:stderr) { should match /^$/ }
 end
 
