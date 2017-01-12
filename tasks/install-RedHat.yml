@@ -4,3 +4,15 @@
   yum:
     name: "{{ redis_package }}"
     state: present
+  register: register_redis_install
+
+- name: Remove default redis.conf right after installation finishes
+  # XXX the default files conflict, or pollute, i would say, with the desired
+  # configuration.
+  file:
+    path: "{{ item }}"
+    state: absent
+  when: register_redis_install.changed
+  with_items:
+    - "{{ redis_sentinel_conf_file }}"
+    - "{{ redis_conf_file }}"
