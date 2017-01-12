@@ -1,5 +1,6 @@
 - hosts: localhost
   roles:
+    - reallyenglish.redhat-repo
     - ansible-role-redis
   vars:
     redis_config:
@@ -20,3 +21,8 @@
     redis_sentinel_failover_timeout: 180001
     redis_sentinel_config:
       bind: "127.0.0.1 {{ ansible_all_ipv4_addresses | join(' ') }}"
+    redhat_repo:
+      epel:
+        mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
+        gpgcheck: yes
+        enabled: yes
