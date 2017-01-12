@@ -1,0 +1,13 @@
+module redis_sentinel 1.0;
+
+require {
+        type redis_port_t;
+        type etc_t;
+        type redis_t;
+        class tcp_socket name_connect;
+        class file write;
+}
+
+#============= redis_t ==============
+allow redis_t redis_port_t:tcp_socket name_connect;
+allow redis_t etc_t:file write;
