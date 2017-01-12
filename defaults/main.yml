@@ -14,8 +14,8 @@ redis_config_default: "{{ __redis_config_default }}"
 redis_config: {}
 
 redis_sentinel_group: []
-
-redis_sentinel_conf_file: "{{ redis_conf_dir }}/sentinel.conf"
+redis_sentinel_service: "{{ __redis_sentinel_service }}"
+redis_sentinel_conf_file: "{{ __redis_sentinel_conf_file }}"
 redis_sentinel_conf_file_ansible: "{{ redis_sentinel_conf_file }}.ansible"
 redis_sentinel_enable: false
 

@@ -73,3 +73,4 @@ suites:
       command: rspec -c -f d -I tests/serverspec tests/serverspec/enable_sentinel_spec.rb
     includes:
       - freebsd-10.3-amd64
+      - centos-7.2-x86_64

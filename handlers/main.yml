@@ -9,6 +9,6 @@
 
 - name: Restart sentinel
   service:
-    name: sentinel
+    name: "{{ redis_sentinel_service }}"
     state: restarted
     enabled: yes

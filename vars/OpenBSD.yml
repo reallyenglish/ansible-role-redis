@@ -60,4 +60,6 @@ __redis_config_default:
   hz: 10
   aof-rewrite-incremental-fsync: "yes"
 
+__redis_sentinel_service: sentinel
+__redis_sentinel_conf_file: "{{ __redis_conf_dir }}/sentinel.conf"
 __redis_sentinel_logdir: /var/log/redis

@@ -1,1 +1,37 @@
 ---
+
+# redis-2.8.19-2 does not provide SELinux policy. Create one.
+# XXX remove these SELinux-related tasks when the upstream include SELinux
+# support in the package
+
+- name: Install SELinux tools
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libselinux-python
+    - policycoreutils-python
+
+- name: Configure SELinux policy (TCP)
+  seport:
+    ports: "{{ redis_sentinel_config_merged.port }}"
+    proto: tcp
+    setype: redis_port_t
+    state: present
+
+- name: Create a wrapper to load SELinux policy
+  copy:
+    src: RedHat/semodule_load_te.sh
+    dest: /bin/semodule_load_te
+    mode: 0755
+
+- name: Configure SELinux policy for sentinel
+  template:
+    src: RedHat/redis_sentinel.te
+    dest: "{{ redis_conf_dir }}/redis_sentinel.te"
+    validate: "checkmodule -M -m %s"
+  register: register_redis_sentinel_te
+
+- name: Load SELinux policy for sentinel
+  shell: "/bin/semodule_load_te {{ redis_conf_dir }}/redis_sentinel.te"
+  when: register_redis_sentinel_te.changed

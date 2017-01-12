@@ -29,7 +29,8 @@ Example Playbook.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `redis_sentinel_group` | list of sentinel nodes. the first one is the master | `[]` |
-| `redis_sentinel_conf_file` | path to `sentinel.conf` | `{{ redis_conf_dir }}/sentinel.conf` |
+| `redis_sentinel_service` | service name of sentinel | `{{ __redis_sentinel_service }}` |
+| `redis_sentinel_conf_file` | path to `sentinel.conf` | `{{ __redis_sentinel_conf_file }}` |
 | `redis_sentinel_conf_file_ansible` | path to static config file for redis | `{{ redis_sentinel_conf_file }}.ansible` |
 | `redis_sentinel_enable` | enable sentinel. `tasks/sentinel.yml` is invoked | `false` |
 | `redis_sentinel_password` | password for `sentinel auth-pass` | `""` |

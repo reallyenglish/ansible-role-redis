@@ -105,6 +105,6 @@
 
 - name: Start sentinel
   service:
-    name: sentinel
+    name: "{{ redis_sentinel_service }}"
     enabled: yes
     state: started
