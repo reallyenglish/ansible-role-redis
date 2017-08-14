@@ -1,33 +1,32 @@
-require 'spec_helper'
-require 'serverspec'
+require "spec_helper"
+require "serverspec"
 
-redis_package_name = 'redis-server'
-redis_service_name = 'redis-server'
-redis_config       = '/etc/redis/redis.conf'
-redis_user         = 'redis'
-redis_group        = 'redis'
+redis_package_name = "redis-server"
+redis_service_name = "redis-server"
+redis_config       = "/etc/redis/redis.conf"
+redis_user         = "redis"
+redis_group        = "redis"
 redis_dir          = "/var/lib/redis"
-redis_log_dir      = '/var/log/redis'
+redis_log_dir      = "/var/log/redis"
 redis_port         = 6379
-redis_pidfile = '/var/run/redis/redis-server.pid'
-redis_logfile = '/var/log/redis/redis-server.log'
-redis_password = 'password'
+redis_pidfile = "/var/run/redis/redis-server.pid"
+redis_logfile = "/var/log/redis/redis-server.log"
+redis_password = "password"
 
 case os[:family]
-when 'freebsd'
-  redis_package_name = 'redis'
-  redis_service_name = 'redis'
-  redis_service_name = 'redis'
-  redis_config       = '/usr/local/etc/redis/redis.conf'
-  redis_dir          = '/var/db/redis'
-  redis_pidfile = '/var/run/redis/redis.pid'
-  redis_logfile = '/var/log/redis/redis.log'
+when "freebsd"
+  redis_package_name = "redis"
+  redis_service_name = "redis"
+  redis_config       = "/usr/local/etc/redis/redis.conf"
+  redis_dir          = "/var/db/redis"
+  redis_pidfile = "/var/run/redis/redis.pid"
+  redis_logfile = "/var/log/redis/redis.log"
 when "redhat"
   redis_package_name = "redis"
   redis_service_name = "redis"
   redis_config       = "/etc/redis.conf"
-  redis_pidfile      = '/var/run/redis/redis.pid'
-  redis_logfile      = '/var/log/redis/redis.log'
+  redis_pidfile      = "/var/run/redis/redis.pid"
+  redis_logfile      = "/var/log/redis/redis.log"
 when "openbsd"
   redis_package_name = "redis"
   redis_service_name = "redis"
@@ -39,15 +38,15 @@ when "openbsd"
   redis_log_dir      = nil
 end
 
-redis_config_ansible = "#{ redis_config }.ansible"
+redis_config_ansible = "#{redis_config}.ansible"
 
 describe package(redis_package_name) do
   it { should be_installed }
-end 
+end
 
 case os[:family]
-when 'freebsd'
-  describe file('/etc/rc.conf.d/redis') do
+when "freebsd"
+  describe file("/etc/rc.conf.d/redis") do
     it { should be_file }
     its(:content) { should match Regexp.escape('redis_config="/usr/local/etc/redis/redis.conf"') }
   end
@@ -73,8 +72,8 @@ describe file(redis_config) do
   it { should be_file }
   it { should be_owned_by redis_user }
   it { should be_grouped_into redis_group }
-  its(:content) { should match /^include #{ Regexp.escape(redis_config_ansible) }/ }
-  its(:content) { should_not match /^slaveof / }
+  its(:content) { should match(/^include #{Regexp.escape(redis_config_ansible)}/) }
+  its(:content) { should_not match(/^slaveof /) }
 end
 
 describe file(redis_config_ansible) do
@@ -105,8 +104,8 @@ describe port(redis_port) do
   it { should be_listening }
 end
 
-describe command ("redis-cli -a #{redis_password} ping") do
-  its(:stdout) { should match /PONG/ }
-  its(:stderr) { should eq '' }
+describe command "redis-cli -a #{redis_password} ping" do
+  its(:stdout) { should match(/PONG/) }
+  its(:stderr) { should eq "" }
   its(:exit_status) { should eq 0 }
 end

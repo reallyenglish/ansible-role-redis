@@ -1,11 +1,12 @@
-require 'infrataster/rspec'
-require 'infrataster-plugin-redis'
-require 'redis'
+require "infrataster/rspec"
+require "infrataster-plugin-redis"
+require "redis"
 
-ENV['VAGRANT_CWD'] = File.dirname(__FILE__)
-ENV['LANG'] = 'C'
+ENV["VAGRANT_CWD"] = File.dirname(__FILE__)
+ENV["LANG"] = "C"
 
-if ENV['JENKINS_HOME']
+if ENV["JENKINS_HOME"]
+  # rubocop:disable Metrics/LineLength
   # XXX "bundle exec vagrant" fails to load.
   #
   # > bundle exec vagrant --version
@@ -20,29 +21,30 @@ if ENV['JENKINS_HOME']
   #
   # include the path of bin to vagrant
   vagrant_real_path = `pkg info -l vagrant | grep -v '/usr/local/bin/vagrant' | grep -E 'bin\/vagrant$'| sed -e 's/^[[:space:]]*//'`
+  # rubocop:enable Metrics/LineLength
   vagrant_bin_dir = File.dirname(vagrant_real_path)
-  ENV['PATH'] = "#{vagrant_bin_dir}:#{ENV['PATH']}"
+  ENV["PATH"] = "#{vagrant_bin_dir}:#{ENV['PATH']}"
 end
 
 Infrataster::Server.define(
   :master,
-  '192.168.90.100',
+  "192.168.90.100",
   vagrant: true,
-  redis: { host: '192.168.90.100' }
+  redis: { host: "192.168.90.100" }
 )
 
 Infrataster::Server.define(
   :slave1,
-  '192.168.90.201',
+  "192.168.90.201",
   vagrant: true,
-  redis: { host: '192.168.90.201' }
+  redis: { host: "192.168.90.201" }
 )
 
 Infrataster::Server.define(
   :slave2,
-  '192.168.90.202',
+  "192.168.90.202",
   vagrant: true,
-  redis: { host: '192.168.90.202' }
+  redis: { host: "192.168.90.202" }
 )
 
 RSpec.configure do |config|
