@@ -8,3 +8,4 @@
     create: yes
     state: present
   notify: Restart redis
+  when: redis_enable
